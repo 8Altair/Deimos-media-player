@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Deimos.UI"
         mc:Ignorable="d"
-        Title="Deimos" Height="450" Width="800">
+        Title="Deimos"
+        WindowState="Maximized">
     <Grid>
 
     </Grid>
