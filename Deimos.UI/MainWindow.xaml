@@ -6,7 +6,9 @@
         xmlns:local="clr-namespace:Deimos.UI"
         mc:Ignorable="d"
         Title="Deimos"
-        WindowState="Maximized">
+        WindowState="Maximized"
+        MinWidth="620"
+        MinHeight="500">
     <Grid>
 
     </Grid>
