@@ -1,6 +1,7 @@
 ﻿<Window x:Class="Deimos.UI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:svg="clr-namespace:SharpVectors.Converters;assembly=SharpVectors.Converters.Wpf"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Deimos.UI"
@@ -9,7 +10,122 @@
         WindowState="Maximized"
         MinWidth="620"
         MinHeight="500">
-    <Grid>
+    
+    <Window.Resources>
+        <!-- Reusable style for icon-only transport buttons -->
+        <Style x:Key="PlayerIconButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="4,0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
 
-    </Grid>
+        <!-- Reusable style for the SVG icon itself -->
+        <Style x:Key="PlayerIconStyle" TargetType="{x:Type svg:SvgViewbox}">
+            <Setter Property="Width" Value="22"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="Stretch" Value="Uniform"/>
+        </Style>
+    </Window.Resources>
+    
+    <!-- Skeleton layout -->
+    <DockPanel>
+        
+        <!-- TOP: Main menu -->
+        <Menu DockPanel.Dock="Top"> <!-- Container for items (full horizontal) -->
+            <MenuItem x:Name="MenuItemFile" Header="_File">   <!-- Clickable entry/item "File" with shortcut enabled  (Alt + F) -->
+                <MenuItem x:Name="MenuItemExit" Header="E_xit" Click="ExitClick" />   <!-- Clickable submenu "Exit" with shortcut enabled  (X) -->
+            </MenuItem>
+
+            <MenuItem Header="_List">   <!-- Clickable submenu "List" with shortcut enabled-->
+                <MenuItem Header="Add static" />
+                <MenuItem Header="Edit static" />
+                <Separator />   <!-- Thin horizontal line for separation -->
+                <MenuItem Header="Add" />
+                <MenuItem Header="Edit" />
+                <MenuItem Header="Remove" />
+            </MenuItem>
+        </Menu>
+        
+        <!-- BOTTOM: Playback / controls area -->
+        <Grid DockPanel.Dock="Bottom" Margin="10">  <!-- Grid layout docked to the bottom with all 4 margins set to 10 pixels -->
+            <!-- 2 rows -->
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>  <!-- Time, slider -->
+                <RowDefinition Height="Auto"/>  <!-- Now playing TextBox, automatic TextBox height; Buttons, automatic Buttons height -->
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,8">
+                <!-- 5 columns -->
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>    <!-- Start time -->
+                    <ColumnDefinition Width="10"/>  <!-- Gap -->
+                    <ColumnDefinition Width="*"/>   <!-- Slider -->
+                    <ColumnDefinition Width="10"/>  <!-- Gap -->
+                    <ColumnDefinition Width="Auto"/>   <!-- End time -->
+                </Grid.ColumnDefinitions>
+
+                <Label x:Name="CurrentTime" Grid.Column="0" Content="00:00:00"/> <!-- Current time -->
+                <Slider x:Name="SliderPosition" Grid.Column="2" Minimum="0" Maximum="100" Value="0" IsMoveToPointEnabled="True" 
+                        IsSelectionRangeEnabled="True" SelectionStart="0" 
+                        SelectionEnd="{Binding Value, RelativeSource={RelativeSource Self}}"/>    <!-- Length, clicking to point, progress track -->
+                <Label x:Name="TotalTime" Grid.Column="4" Content="00:00:00"/> <!-- Total time -->
+            </Grid>
+            
+            <!-- Row 1: Now playing -->
+            <TextBox x:Name="NowPlaying" Grid.Row="1" HorizontalAlignment="Left" BorderThickness="0" Background="Transparent" 
+                     Text="Now playing: " IsReadOnly="True" IsReadOnlyCaretVisible="False" Focusable="False"/> <!-- First row with writing disabled -->
+
+            <!-- Row 1: Buttons -->
+            <WrapPanel Grid.Row="1" Margin="0,0,0,40" HorizontalAlignment="Center"> <!-- Centered second row wrap panel for horizontal layout of the buttons with margin 40 pixel from the bottom -->
+                <Button x:Name="Shuffle" Style="{StaticResource PlayerIconButtonStyle}">
+                    <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
+                                    Source="Assets/Icons/Controls/shuffle.svg"/>
+                </Button>
+                <Button x:Name="Repeat" Style="{StaticResource PlayerIconButtonStyle}">
+                    <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
+                                    Source="Assets/Icons/Controls/repeat.svg"/>
+                </Button>
+                <Button x:Name="Stop" Style="{StaticResource PlayerIconButtonStyle}">
+                    <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
+                                    Source="Assets/Icons/Controls/stop.svg"/>
+                </Button>
+                <Button x:Name="Previous" Style="{StaticResource PlayerIconButtonStyle}">
+                    <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
+                                    Source="Assets/Icons/Controls/previous.svg"/>
+                </Button>
+                <Button x:Name="PlayPause" Style="{StaticResource PlayerIconButtonStyle}">
+                    <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
+                                    Source="Assets/Icons/Controls/play.svg"/>
+                </Button>
+                <Button x:Name="Next" Style="{StaticResource PlayerIconButtonStyle}">
+                    <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
+                                    Source="Assets/Icons/Controls/next.svg"/>
+                </Button>
+            </WrapPanel>
+        </Grid>
+        
+        <!-- CENTER (FILL): Playlist + Media -->
+        <Grid Margin="10">  <!-- Taking the rest of the free space with margin 10 pixels from all sides -->
+            <!-- 3 columns -->
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250" MinWidth="200" MaxWidth="450"/> <!-- Resizeable playlist column -->
+                <ColumnDefinition Width="5"/>  <!-- Grid splitter 5 pixels wide -->
+                <ColumnDefinition Width="*"/>   <!-- Media column (takes the rest of the free width) -->
+            </Grid.ColumnDefinitions>
+
+            <ListView x:Name="LvPlayList" Grid.Column="0">  <!-- List of media items -->
+                <ListView.ItemContainerStyle>   <!-- Apply this style to every ListViewItem created -->
+                    <Style TargetType="ListViewItem">   <!-- Defined container style -->
+                        <EventSetter Event="MouseRightButtonUp" Handler="PlayList_OnMouseRightButtonUp"/>   <!-- Use the given function on that  event -->
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </ListView>
+            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch"/>
+            <MediaElement x:Name="MediaPlayer" Grid.Column="2"/> <!-- Placeholder for playing media files -->
+        </Grid>
+        
+    </DockPanel>
 </Window>
