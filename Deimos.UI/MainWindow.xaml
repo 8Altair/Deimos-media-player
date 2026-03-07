@@ -11,25 +11,6 @@
         MinWidth="620"
         MinHeight="500">
     
-    <Window.Resources>
-        <!-- Reusable style for icon-only transport buttons -->
-        <Style x:Key="PlayerIconButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Margin" Value="4,0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
-
-        <!-- Reusable style for the SVG icon itself -->
-        <Style x:Key="PlayerIconStyle" TargetType="{x:Type svg:SvgViewbox}">
-            <Setter Property="Width" Value="22"/>
-            <Setter Property="Height" Value="22"/>
-            <Setter Property="Stretch" Value="Uniform"/>
-        </Style>
-    </Window.Resources>
-    
     <!-- Skeleton layout -->
     <DockPanel>
         
@@ -80,15 +61,15 @@
 
             <!-- Row 1: Buttons -->
             <WrapPanel Grid.Row="1" Margin="0,0,0,40" HorizontalAlignment="Center"> <!-- Centered second row wrap panel for horizontal layout of the buttons with margin 40 pixel from the bottom -->
-                <Button x:Name="Shuffle" Style="{StaticResource PlayerIconButtonStyle}">
-                    <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
+                <Button x:Name="Shuffle" Style="{StaticResource SmallPlayerIconButtonStyle}">
+                    <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}"
                                     Source="Assets/Icons/Controls/shuffle.svg"/>
                 </Button>
-                <Button x:Name="Repeat" Style="{StaticResource PlayerIconButtonStyle}">
-                    <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
+                <Button x:Name="Repeat" Style="{StaticResource SmallPlayerIconButtonStyle}">
+                    <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}"
                                     Source="Assets/Icons/Controls/repeat.svg"/>
                 </Button>
-                <Button x:Name="Stop" Style="{StaticResource PlayerIconButtonStyle}">
+                <Button x:Name="Stop" Style="{StaticResource SmallPlayerIconButtonStyle}">
                     <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
                                     Source="Assets/Icons/Controls/stop.svg"/>
                 </Button>
