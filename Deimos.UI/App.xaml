@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:Deimos.UI"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary Source="Resources/Styles.xaml"/>
     </Application.Resources>
 </Application>
