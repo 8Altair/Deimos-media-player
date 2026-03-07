@@ -31,7 +31,7 @@
         </Menu>
         
         <!-- BOTTOM: Playback / controls area -->
-        <Grid DockPanel.Dock="Bottom" Margin="10">  <!-- Grid layout docked to the bottom with all 4 margins set to 10 pixels -->
+        <Grid DockPanel.Dock="Bottom" Margin="10" Background="{StaticResource PanelBackgroundBrush}">  <!-- Grid layout docked to the bottom with all 4 margins set to 10 pixels -->
             <!-- 2 rows -->
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>  <!-- Time, slider -->
@@ -56,8 +56,8 @@
             </Grid>
             
             <!-- Row 1: Now playing -->
-            <TextBox x:Name="NowPlaying" Grid.Row="1" HorizontalAlignment="Left" BorderThickness="0" Background="Transparent" 
-                     Text="Now playing: " IsReadOnly="True" IsReadOnlyCaretVisible="False" Focusable="False"/> <!-- First row with writing disabled -->
+            <TextBox x:Name="NowPlaying" Grid.Row="1" HorizontalAlignment="Left" Style="{StaticResource 
+            NowPlayingTextBoxStyle}" Text="Now playing: "/> <!-- First row with writing disabled -->
 
             <!-- Row 1: Buttons -->
             <WrapPanel Grid.Row="1" Margin="0,0,0,40" HorizontalAlignment="Center"> <!-- Centered second row wrap panel for horizontal layout of the buttons with margin 40 pixel from the bottom -->
@@ -89,7 +89,7 @@
         </Grid>
         
         <!-- CENTER (FILL): Playlist + Media -->
-        <Grid Margin="10">  <!-- Taking the rest of the free space with margin 10 pixels from all sides -->
+        <Grid Margin="10" Background="{StaticResource PanelBackgroundBrush}">  <!-- Taking the rest of the free space with margin 10 pixels from all sides -->
             <!-- 3 columns -->
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="250" MinWidth="200" MaxWidth="450"/> <!-- Resizeable playlist column -->
@@ -97,15 +97,19 @@
                 <ColumnDefinition Width="*"/>   <!-- Media column (takes the rest of the free width) -->
             </Grid.ColumnDefinitions>
 
-            <ListView x:Name="LvPlayList" Grid.Column="0">  <!-- List of media items -->
-                <ListView.ItemContainerStyle>   <!-- Apply this style to every ListViewItem created -->
-                    <Style TargetType="ListViewItem">   <!-- Defined container style -->
-                        <EventSetter Event="MouseRightButtonUp" Handler="PlayList_OnMouseRightButtonUp"/>   <!-- Use the given function on that  event -->
+            <ListView x:Name="LvPlayList" Grid.Column="0">    <!-- List of media items -->
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem" BasedOn="{StaticResource PlaylistItemStyle}">
+                        <EventSetter Event="MouseRightButtonUp" Handler="PlayList_OnMouseRightButtonUp"/>
                     </Style>
                 </ListView.ItemContainerStyle>
             </ListView>
             <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch"/>
-            <MediaElement x:Name="MediaPlayer" Grid.Column="2"/> <!-- Placeholder for playing media files -->
+            <Border Grid.Column="2" Background="{StaticResource ControlBackgroundBrush}" 
+                    BorderBrush="{StaticResource ControlBorderBrush}" BorderThickness="1"
+                    Margin="0">
+                <MediaElement x:Name="MediaPlayer"/>    <!-- Placeholder for playing media files -->
+            </Border>
         </Grid>
         
     </DockPanel>
