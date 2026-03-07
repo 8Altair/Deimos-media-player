@@ -10,7 +10,24 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Assets\Icons\" />
+      <PackageReference Include="SharpVectors.Wpf" Version="1.8.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Assets\Icons\Controls\next.svg" />
+      <Resource Include="Assets\Icons\Controls\next.svg" />
+      <None Remove="Assets\Icons\Controls\pause.svg" />
+      <Resource Include="Assets\Icons\Controls\pause.svg" />
+      <None Remove="Assets\Icons\Controls\play.svg" />
+      <Resource Include="Assets\Icons\Controls\play.svg" />
+      <None Remove="Assets\Icons\Controls\previous.svg" />
+      <Resource Include="Assets\Icons\Controls\previous.svg" />
+      <None Remove="Assets\Icons\Controls\repeat.svg" />
+      <Resource Include="Assets\Icons\Controls\repeat.svg" />
+      <None Remove="Assets\Icons\Controls\shuffle.svg" />
+      <Resource Include="Assets\Icons\Controls\shuffle.svg" />
+      <None Remove="Assets\Icons\Controls\stop.svg" />
+      <Resource Include="Assets\Icons\Controls\stop.svg" />
     </ItemGroup>
 
 </Project>
