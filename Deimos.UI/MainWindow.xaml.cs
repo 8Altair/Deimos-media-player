@@ -1,7 +1,7 @@
 ﻿using System.Text;
-using System.Diagnostics;
-using System.Windows;
-using System.Windows.Controls;
+using System.Diagnostics;   // Debug.WriteLine for debug output
+using System.Windows;   // Core WPF types like Window, Application, MessageBox
+using System.Windows.Controls;  // WPF controls like MenuItem and ListViewItem
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input; // Input-related types like MouseButtonEventArgs
