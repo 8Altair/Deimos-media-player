@@ -53,7 +53,7 @@
         <Setter Property="FontWeight" Value="SemiBold"/>
     </Style>
 
-    <Style x:Key="NowPlayingTextBoxStyle" TargetType="TextBox">
+    <Style x:Key="NowPlayingTextBlockStyle" TargetType="TextBlock">
         <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
