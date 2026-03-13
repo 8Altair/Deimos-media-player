@@ -27,7 +27,7 @@ public partial class MainWindow : Window    // Connects partial logic from xaml 
     {
         InitializeComponent();  // Builds and connects the XAML UI components to this class
         
-        UpdateSeekBarVisual();
+        UpdateSeekBarVisual();  // Calling a method for seek bar (visual) update
         
         // Temporary test items
         LvPlayList.Items.Add("Song1.mp3");
