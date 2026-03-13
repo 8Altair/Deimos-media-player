@@ -18,7 +18,12 @@ namespace Deimos.UI;
 /// </summary>
 public partial class MainWindow : Window    // Connects partial logic from xaml file and inherits Window class
 {
-    public MainWindow()
+    private bool _isDraggingSeekBar;
+    private const double SeekMinimum = 0;
+    private const double SeekMaximum = 100;
+    private double _seekValue;
+    
+    public MainWindow() // Constructor
     {
         InitializeComponent();  // Builds and connects the XAML UI components to this class
         
