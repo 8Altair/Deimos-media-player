@@ -15,6 +15,7 @@
     <SolidColorBrush x:Key="ButtonPressedBrush" Color="#C8D1DD"/>
     <SolidColorBrush x:Key="DarkTrackBrush" Color="#2A3B4F"/>
     <SolidColorBrush x:Key="ListHoverBrush" Color="#1E2D40"/>
+    <SolidColorBrush x:Key="PlaybackSurfaceBrush" Color="#0E1824"/>
 
     <Style TargetType="Window">
         <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}"/>
