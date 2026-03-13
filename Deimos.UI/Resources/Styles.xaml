@@ -65,8 +65,7 @@
     </Style>
 
     <Style TargetType="GridSplitter">
-        <Setter Property="Background" Value="{StaticResource ControlBorderBrush}"/>
-        <Setter Property="ShowsPreview" Value="True"/>
+        <Setter Property="Background" Value="#203040"/>
     </Style>
 
     <ControlTemplate x:Key="SliderThumbTemplate" TargetType="Thumb">
