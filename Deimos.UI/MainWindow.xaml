@@ -124,9 +124,9 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBox x:Name="NowPlaying" Grid.Column="0" VerticalAlignment="Center" 
-                             Style="{StaticResource NowPlayingTextBoxStyle}" 
-                             Text="Now playing:"/>
+                            <!-- Current track label -->
+                            <TextBlock x:Name="NowPlaying" Grid.Column="0" VerticalAlignment="Center" 
+                                       Style="{StaticResource NowPlayingTextBlockStyle}" Text="Now playing:"/>
 
                     <WrapPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Button x:Name="Shuffle" 
