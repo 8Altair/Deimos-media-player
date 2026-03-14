@@ -12,16 +12,73 @@
         MinWidth="620"
         MinHeight="500"
         Background="{StaticResource WindowBackgroundBrush}"
-        Foreground="{StaticResource PrimaryTextBrush}">
+        Foreground="{StaticResource PrimaryTextBrush}"
+        WindowStyle="None"
+        ResizeMode="CanResize"
+        AllowsTransparency="False">
+
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0" ResizeBorderThickness="6" CornerRadius="0" 
+                            GlassFrameThickness="0" UseAeroCaptionButtons="False"/>
+    </shell:WindowChrome.WindowChrome>
     
-    <!-- Skeleton layout -->
-    <DockPanel Background="{StaticResource WindowBackgroundBrush}">
-        
-        <!-- TOP: Main menu -->
-        <Menu DockPanel.Dock="Top"> <!-- Container for items (full horizontal) -->
-            <MenuItem x:Name="MenuItemFile" Header="_File">   <!-- Clickable entry/item "File" with shortcut enabled  (Alt + F) -->
-                <MenuItem x:Name="MenuItemExit" Header="E_xit" Click="ExitClick" />   <!-- Clickable submenu "Exit" with shortcut enabled  (X) -->
-            </MenuItem>
+    <Border x:Name="WindowFrame" Background="{StaticResource WindowBackgroundBrush}" Margin="0">
+        <!-- Root layout for custom title bar and application content -->
+        <Grid Background="{StaticResource WindowBackgroundBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/> <!-- Custom title bar -->
+                <RowDefinition Height="*"/> <!-- Main application content -->
+            </Grid.RowDefinitions>
+
+            <!-- Custom title bar -->
+            <Border Grid.Row="0" Background="{StaticResource TitleBarBackgroundBrush}" 
+                    BorderBrush="#223447" BorderThickness="0,0,0,1" 
+                    MouseLeftButtonDown="TitleBar_OnMouseLeftButtonDown">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="10"/> <!-- Left spacing -->
+                        <ColumnDefinition Width="Auto"/> <!-- Application icon -->
+                        <ColumnDefinition Width="10"/> <!-- Spacing -->
+                        <ColumnDefinition Width="*"/> <!-- Title -->
+                        <ColumnDefinition Width="Auto"/> <!-- Minimize -->
+                        <ColumnDefinition Width="Auto"/> <!-- Maximize / Restore -->
+                        <ColumnDefinition Width="Auto"/> <!-- Close -->
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Deimos logo -->
+                    <Image Grid.Column="1" Width="20" Height="20" VerticalAlignment="Center" Stretch="Uniform" 
+                           Source="Assets/Icons/Deimos_logo.png"/>
+                    
+                    <!-- Custom title text -->
+                    <TextBlock Grid.Column="3" Text="Deimos" VerticalAlignment="Center" 
+                               Foreground="{StaticResource PrimaryTextBrush}" FontFamily="Cinzel, Segoe UI" 
+                               FontSize="15" FontWeight="SemiBold"/>
+
+                    <!-- Minimize button -->
+                    <Button Grid.Column="4" Width="40" Height="30" VerticalAlignment="Center" 
+                            Style="{StaticResource TitleBarButtonStyle}" 
+                            Click="Minimize_Click" ToolTip="Minimize">—</Button>
+                    
+                    <!-- Maximize / restore button -->
+                    <Button Grid.Column="5" Width="40" Height="30" VerticalAlignment="Center" 
+                            Style="{StaticResource TitleBarButtonStyle}" 
+                            Click="MaximizeRestore_Click" ToolTip="Maximize / Restore">▢</Button>
+                    
+                    <!-- Close button -->
+                    <Button Grid.Column="6" Width="40" Height="30" VerticalAlignment="Center" 
+                            Style="{StaticResource CloseTitleBarButtonStyle}" Click="Close_Click" 
+                            ToolTip="Close">✕</Button>
+                </Grid>
+            </Border>
+
+            <!-- Main application content -->
+            <DockPanel Grid.Row="1" Background="{StaticResource WindowBackgroundBrush}">
+
+                <!-- Main menu -->
+                <Menu DockPanel.Dock="Top"> <!-- Container for top-level menu items -->
+                    <MenuItem x:Name="MenuItemFile" Header="_File"> <!-- File menu with Alt+F -->
+                        <MenuItem x:Name="MenuItemExit" Header="E_xit" Click="ExitClick"/> <!-- Exit command with X access key -->
+                    </MenuItem>
 
             <MenuItem Header="_List">   <!-- Clickable submenu "List" with shortcut enabled-->
                 <MenuItem Header="Add static" />
