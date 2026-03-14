@@ -21,6 +21,12 @@
         <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}"/>
         <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}"/>
     </Style>
+    
+    <!-- Title bar gradient -->
+    <LinearGradientBrush x:Key="TitleBarBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#132030" Offset="0"/>
+        <GradientStop Color="#0F1823" Offset="1"/>
+    </LinearGradientBrush>
 
     <Style x:Key="SectionBorderStyle" TargetType="Border">
         <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}"/>
