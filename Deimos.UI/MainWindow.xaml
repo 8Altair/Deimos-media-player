@@ -51,8 +51,8 @@
                     
                     <!-- Custom title text -->
                     <TextBlock Grid.Column="3" Text="Deimos" VerticalAlignment="Center" 
-                               Foreground="{StaticResource PrimaryTextBrush}" FontFamily="Cinzel, Segoe UI" 
-                               FontSize="15" FontWeight="SemiBold"/>
+                               Foreground="{StaticResource PrimaryTextBrush}" 
+                               FontFamily="Cinzel, Segoe UI" FontSize="15" FontWeight="SemiBold"/>
 
                     <!-- Minimize button -->
                     <Button Grid.Column="4" Width="40" Height="30" VerticalAlignment="Center" 
@@ -100,101 +100,123 @@
                             <RowDefinition Height="Auto"/> <!-- Transport controls row -->
                         </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="10"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="10"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+                        <!-- Timeline and time labels -->
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/> <!-- Current time -->
+                                <ColumnDefinition Width="10"/> <!-- Left spacing -->
+                                <ColumnDefinition Width="*"/> <!-- Seek timeline -->
+                                <ColumnDefinition Width="10"/> <!-- Right spacing -->
+                                <ColumnDefinition Width="Auto"/> <!-- Total time -->
+                            </Grid.ColumnDefinitions>
 
-                    <Label Grid.Column="0" Content="00:00:00"/>
-                    <Slider x:Name="Playback" Grid.Column="2" Minimum="0" Maximum="100" 
-                            Value="0" IsMoveToPointEnabled="True" IsSelectionRangeEnabled="True" 
-                            SelectionStart="0" SelectionEnd="{Binding Value, 
-                            RelativeSource={RelativeSource Self}}"/>
-                    <Label Grid.Column="4" Content="00:00:00"/>
-                </Grid>
+                            <Label Grid.Column="0" Content="00:00:00"/> <!-- Current playback time -->
 
-                <Grid Grid.Row="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+                            <!-- Playback seek control -->
+                            <Grid x:Name="SeekBar" Grid.Column="2" Height="22" Background="Transparent" 
+                                  SizeChanged="SeekBar_OnSizeChanged" MouseLeftButtonDown="SeekBar_OnMouseLeftButtonDown" 
+                                  MouseMove="SeekBar_OnMouseMove" MouseLeftButtonUp="SeekBar_OnMouseLeftButtonUp">
+                                <Border Height="8" CornerRadius="4" 
+                                        Background="{StaticResource DarkTrackBrush}" 
+                                        VerticalAlignment="Center"/>
+                                <Border x:Name="SeekBarProgress" Height="8" CornerRadius="4" 
+                                        Background="{StaticResource AccentBrush}" 
+                                        VerticalAlignment="Center" HorizontalAlignment="Left" Width="0"/>
+                                <Canvas Height="16" VerticalAlignment="Center" Background="Transparent">
+                                    <Ellipse x:Name="SeekBarThumb" Width="16" Height="16" 
+                                             Fill="{StaticResource AccentBrush}" Stroke="White" 
+                                             StrokeThickness="1" Canvas.Left="0" Canvas.Top="0"/>
+                                </Canvas>
+                            </Grid>
+
+                            <Label Grid.Column="4" Content="00:00:00"/> <!-- Total playback time -->
+                        </Grid>
+
+                        <!-- Now playing and transport controls -->
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/> <!-- Now playing text -->
+                                <ColumnDefinition Width="*"/> <!-- Centered controls -->
+                                <ColumnDefinition Width="Auto"/> <!-- Reserved right side -->
+                            </Grid.ColumnDefinitions>
 
                             <!-- Current track label -->
                             <TextBlock x:Name="NowPlaying" Grid.Column="0" VerticalAlignment="Center" 
-                                       Style="{StaticResource NowPlayingTextBlockStyle}" Text="Now playing:"/>
+                                       Style="{StaticResource NowPlayingTextBlockStyle}" 
+                                       Text="Now playing:"/>
 
-                    <WrapPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Button x:Name="Shuffle" 
-                                Style="{StaticResource SmallPlayerIconButtonStyle}" 
-                                ToolTip="Shuffle">
-                            <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
-                                            Source="Assets/Icons/Controls/shuffle.svg"/>
-                        </Button>
+                            <!-- Media control buttons -->
+                            <WrapPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Button x:Name="Shuffle" Style="{StaticResource SmallPlayerIconButtonStyle}" 
+                                        ToolTip="Shuffle">
+                                    <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
+                                                    Source="Assets/Icons/Controls/shuffle.svg"/> <!-- Shuffle icon -->
+                                </Button>
 
-                        <Button x:Name="Repeat" Style="{StaticResource SmallPlayerIconButtonStyle}" 
-                                ToolTip="Repeat">
-                            <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
-                                            Source="Assets/Icons/Controls/repeat.svg"/>
-                        </Button>
+                                <Button x:Name="Repeat" Style="{StaticResource SmallPlayerIconButtonStyle}" 
+                                        ToolTip="Repeat">
+                                    <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
+                                                    Source="Assets/Icons/Controls/repeat.svg"/> <!-- Repeat icon -->
+                                </Button>
 
-                        <Button x:Name="Stop" Style="{StaticResource SmallPlayerIconButtonStyle}" 
-                                ToolTip="Stop">
-                            <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
-                                            Source="Assets/Icons/Controls/stop.svg"/>
-                        </Button>
+                                <Button x:Name="Stop" Style="{StaticResource SmallPlayerIconButtonStyle}" 
+                                        ToolTip="Stop">
+                                    <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
+                                                    Source="Assets/Icons/Controls/stop.svg"/> <!-- Stop icon -->
+                                </Button>
 
-                        <Button x:Name="Previous" Style="{StaticResource PlayerIconButtonStyle}" ToolTip="Previous">
-                            <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" Source="Assets/Icons/Controls/previous.svg"/>
-                        </Button>
+                                <Button x:Name="Previous" Style="{StaticResource PlayerIconButtonStyle}" 
+                                        ToolTip="Previous">
+                                    <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
+                                                    Source="Assets/Icons/Controls/previous.svg"/> <!-- Previous icon -->
+                                </Button>
 
-                        <Button x:Name="PlayPause" Style="{StaticResource PlayerIconButtonStyle}" 
-                                ToolTip="Play / Pause">
-                            <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
-                                            Source="Assets/Icons/Controls/play.svg"/>
-                        </Button>
+                                <Button x:Name="PlayPause" Style="{StaticResource PlayerIconButtonStyle}" 
+                                        ToolTip="Play / Pause">
+                                    <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
+                                                    Source="Assets/Icons/Controls/play.svg"/> <!-- Play / pause icon -->
+                                </Button>
 
-                        <Button x:Name="Next" Style="{StaticResource PlayerIconButtonStyle}" ToolTip="Next">
-                            <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
-                                            Source="Assets/Icons/Controls/next.svg"/>
-                        </Button>
-                    </WrapPanel>
-                </Grid>
-            </Grid>
-        </Border>
-        
-        <!-- CENTER (FILL): Playlist + Media -->
-        <Border Margin="12"
-                Style="{StaticResource SectionBorderStyle}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="250" MinWidth="200" MaxWidth="450"/>
-                    <ColumnDefinition Width="5"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <ListView x:Name="LvPlayList" Grid.Column="0">
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem" BasedOn="{StaticResource PlaylistItemStyle}">
-                            <EventSetter Event="MouseRightButtonUp" Handler="PlayList_OnMouseRightButtonUp"/>
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                </ListView>
-
-                <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch"/>
-
-                <Border Grid.Column="2" Margin="0" 
-                        Background="{StaticResource SurfaceBackgroundBrush}" 
-                        BorderBrush="{StaticResource ControlBorderBrush}" 
-                        BorderThickness="1,0,0,0">
-                    <MediaElement x:Name="Player"/>
+                                <Button x:Name="Next" Style="{StaticResource PlayerIconButtonStyle}" 
+                                        ToolTip="Next">
+                                    <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
+                                                    Source="Assets/Icons/Controls/next.svg"/> <!-- Next icon -->
+                                </Button>
+                            </WrapPanel>
+                        </Grid>
+                    </Grid>
                 </Border>
-            </Grid>
-        </Border>
-        
-    </DockPanel>
+
+                <!-- Playlist and media surface -->
+                <Border Margin="6" Style="{StaticResource SectionBorderStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="250" MinWidth="200" MaxWidth="450"/> <!-- Playlist column -->
+                            <ColumnDefinition Width="5"/> <!-- Splitter column -->
+                            <ColumnDefinition Width="*"/> <!-- Media column -->
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Playlist view -->
+                        <ListView x:Name="LvPlayList" Grid.Column="0">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem" 
+                                       BasedOn="{StaticResource PlaylistItemStyle}"/> <!-- Shared playlist row styling -->
+                            </ListView.ItemContainerStyle>
+                        </ListView>
+
+                        <!-- Resizable divider -->
+                        <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch"/>
+
+                        <!-- Media playback surface -->
+                        <Border Grid.Column="2" Margin="4,0,0,0" Padding="6" 
+                                Background="{StaticResource PlaybackSurfaceBrush}" 
+                                BorderBrush="{StaticResource ControlBorderBrush}" 
+                                BorderThickness="1" CornerRadius="4">
+                            <MediaElement x:Name="Player"/> <!-- Main playback surface -->
+                        </Border>
+                    </Grid>
+                </Border>
+            </DockPanel>
+        </Grid>
+    </Border>
 </Window>
