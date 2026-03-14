@@ -101,9 +101,8 @@
                                 <Thumb Template="{StaticResource SliderThumbTemplate}"/>
                             </Track.Thumb>
                             <Track.IncreaseRepeatButton>
-                                <RepeatButton Command="Slider.IncreaseLarge" 
-                                              Background="{TemplateBinding 
-                                              Background}" 
+                                <RepeatButton IsHitTestVisible="False" Focusable="False" 
+                                              Background="{TemplateBinding Background}" 
                                               Template="{StaticResource SliderRepeatButtonTemplate}"/>
                             </Track.IncreaseRepeatButton>
                         </Track>
