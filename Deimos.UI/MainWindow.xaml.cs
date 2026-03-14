@@ -1,6 +1,8 @@
 ﻿using System.Text;
 using System.Diagnostics;   // Debug.WriteLine for debug output
+using System.Runtime.InteropServices;
 using System.Windows;   // Core WPF types like Window, Application, MessageBox
+using System.Windows.Interop;
 using System.Windows.Controls;  // WPF controls like MenuItem and ListViewItem
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -11,7 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 
-namespace Deimos.UI;
+namespace Deimos.UI;    // Defines the namespace this class belongs to
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml
@@ -26,6 +28,7 @@ public partial class MainWindow : Window    // Connects partial logic from xaml 
     public MainWindow() // Constructor
     {
         InitializeComponent();  // Builds and connects the XAML UI components to this class
+        SourceInitialized += MainWindow_SourceInitialized;
         
         UpdateSeekBarVisual();  // Calling a method for seek bar (visual) update
         
@@ -36,57 +39,57 @@ public partial class MainWindow : Window    // Connects partial logic from xaml 
     }
     
     private void MainWindow_SourceInitialized(object? sender, EventArgs e)
-{
-    var handle = new WindowInteropHelper(this).Handle;
-    HwndSource.FromHwnd(handle)?.AddHook(WindowProc);
-}
-
-private IntPtr WindowProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-{
-    const int wmGetMinMaxInfo = 0x0024;
-
-    if (msg != wmGetMinMaxInfo) return IntPtr.Zero;
-    WmGetMinMaxInfo(hwnd, lParam);
-    handled = true;
-
-    return IntPtr.Zero;
-}
-
-private void WmGetMinMaxInfo(IntPtr hwnd, IntPtr lParam)
-{
-    MinMaxInfo mmi = Marshal.PtrToStructure<MinMaxInfo>(lParam);
-
-    IntPtr monitor = MonitorFromWindow(hwnd, MonitorDefaultToNearest);
-
-    if (monitor != IntPtr.Zero)
     {
-        var monitorInfo = new MonitorInfo
+        var handle = new WindowInteropHelper(this).Handle;
+        HwndSource.FromHwnd(handle)?.AddHook(WindowProc);
+    }
+
+    private IntPtr WindowProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        const int wmGetMinMaxInfo = 0x0024;
+
+        if (msg != wmGetMinMaxInfo) return IntPtr.Zero;
+        WmGetMinMaxInfo(hwnd, lParam);
+        handled = true;
+
+        return IntPtr.Zero;
+    }
+
+    private void WmGetMinMaxInfo(IntPtr hwnd, IntPtr lParam)
+    {
+        var mmi = Marshal.PtrToStructure<MinMaxInfo>(lParam);
+
+        var monitor = MonitorFromWindow(hwnd, MonitorDefaultToNearest);
+
+        if (monitor != IntPtr.Zero)
         {
-            cbSize = Marshal.SizeOf<MonitorInfo>()
-        };
-        GetMonitorInfo(monitor, ref monitorInfo);
+            var monitorInfo = new MonitorInfo
+            {
+                cbSize = Marshal.SizeOf<MonitorInfo>()
+            };
+            GetMonitorInfo(monitor, ref monitorInfo);
 
-        var workArea = monitorInfo.rcWork;
-        var monitorArea = monitorInfo.rcMonitor;
+            var workArea = monitorInfo.rcWork;
+            var monitorArea = monitorInfo.rcMonitor;
 
-        mmi.ptMaxPosition.x = Math.Abs(workArea.left - monitorArea.left);
-        mmi.ptMaxPosition.y = Math.Abs(workArea.top - monitorArea.top);
-        mmi.ptMaxSize.x = Math.Abs(workArea.right - workArea.left);
-        mmi.ptMaxSize.y = Math.Abs(workArea.bottom - workArea.top);
+            mmi.ptMaxPosition.x = Math.Abs(workArea.left - monitorArea.left);
+            mmi.ptMaxPosition.y = Math.Abs(workArea.top - monitorArea.top);
+            mmi.ptMaxSize.x = Math.Abs(workArea.right - workArea.left);
+            mmi.ptMaxSize.y = Math.Abs(workArea.bottom - workArea.top);
+        }
+
+        var source = HwndSource.FromHwnd(hwnd);
+
+        if (source?.CompositionTarget != null)
+        {
+            var transformToDevice = source.CompositionTarget.TransformToDevice;
+
+            mmi.ptMinTrackSize.x = (int)Math.Ceiling(MinWidth * transformToDevice.M11);
+            mmi.ptMinTrackSize.y = (int)Math.Ceiling(MinHeight * transformToDevice.M22);
+        }
+
+        Marshal.StructureToPtr(mmi, lParam, true);
     }
-
-    var source = HwndSource.FromHwnd(hwnd);
-
-    if (source?.CompositionTarget != null)
-    {
-        var transformToDevice = source.CompositionTarget.TransformToDevice;
-
-        mmi.ptMinTrackSize.x = (int)Math.Ceiling(MinWidth * transformToDevice.M11);
-        mmi.ptMinTrackSize.y = (int)Math.Ceiling(MinHeight * transformToDevice.M22);
-    }
-
-    Marshal.StructureToPtr(mmi, lParam, true);
-}
 
     private const int MonitorDefaultToNearest = 0x00000002;
 
@@ -170,14 +173,82 @@ private void WmGetMinMaxInfo(IntPtr hwnd, IntPtr lParam)
     /// <param name="e"></param>
     private void ExitClick(object sender, RoutedEventArgs e)
     {
-        Debug.WriteLine("Detected: " + ((MenuItem)sender).Name);
-        Debug.WriteLine("Shutting down application.");
-        Application.Current.Shutdown();
+        Debug.WriteLine("Detected: " + ((MenuItem)sender).Name);    // Writes the clicked MenuItem name to debug output
+        Debug.WriteLine("Shutting down application.");   // Writes a debug message before shutting down
+        Application.Current.Shutdown(); // Closes the entire application
+    }
+    
+    private void SeekBar_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        _isDraggingSeekBar = true;
+        SeekBar.CaptureMouse();
+        SetSeekBarValueFromMouse(e.GetPosition(SeekBar).X);
     }
 
-    private void PlayList_OnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+    private void SeekBar_OnMouseMove(object sender, MouseEventArgs e)
     {
-        Debug.WriteLine("Click detected for: " + e.ChangedButton);
-        MessageBox.Show("File name: " + ((ListViewItem)sender).Content);
+        if (!_isDraggingSeekBar || e.LeftButton != MouseButtonState.Pressed)
+            return;
+
+        SetSeekBarValueFromMouse(e.GetPosition(SeekBar).X);
     }
+
+    private void SeekBar_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (!_isDraggingSeekBar)
+            return;
+
+        _isDraggingSeekBar = false;
+        SetSeekBarValueFromMouse(e.GetPosition(SeekBar).X);
+        SeekBar.ReleaseMouseCapture();
+    }
+
+    private void SeekBar_OnSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        UpdateSeekBarVisual();
+    }
+
+    private void SetSeekBarValueFromMouse(double mouseX)
+    {
+        var width = SeekBar.ActualWidth;
+
+        if (width <= 0)
+            return;
+
+        var ratio = mouseX / width;
+        ratio = Math.Max(0, Math.Min(1, ratio));
+
+        _seekValue = SeekMinimum + (SeekMaximum - SeekMinimum) * ratio;
+        UpdateSeekBarVisual();
+    }
+
+    private void UpdateSeekBarVisual()
+    {
+        var width = SeekBar.ActualWidth;
+
+        if (width <= 0)
+            return;
+
+        const double range = SeekMaximum - SeekMinimum;
+
+        if (range <= 0)
+            return;
+
+        var ratio = (_seekValue - SeekMinimum) / range;
+        ratio = Math.Max(0, Math.Min(1, ratio));
+
+        var progressWidth = width * ratio;
+        SeekBarProgress.Width = progressWidth;
+
+        var thumbLeft = progressWidth - SeekBarThumb.Width / 2;
+        thumbLeft = Math.Max(0, Math.Min(width - SeekBarThumb.Width, thumbLeft));
+
+        Canvas.SetLeft(SeekBarThumb, thumbLeft);
+    }
+    
+    // private void PlayList_OnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
+    // {
+    //     Debug.WriteLine("Click detected for: " + e.ChangedButton);  // Writes which mouse button changed
+    //     MessageBox.Show("File name: " + ((ListViewItem)sender).Content);    // Shows a message box with the clicked item's content
+    // }
 }
