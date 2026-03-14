@@ -76,7 +76,8 @@
     </ControlTemplate>
 
     <ControlTemplate x:Key="SliderRepeatButtonTemplate" TargetType="RepeatButton">
-        <Border Height="8" CornerRadius="4" Background="{TemplateBinding Background}"/>
+        <Border Height="8" CornerRadius="4" Background="{TemplateBinding Background}" 
+                IsHitTestVisible="False"/>
     </ControlTemplate>
 
     <Style TargetType="Slider">
