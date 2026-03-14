@@ -89,7 +89,7 @@
                     <Grid VerticalAlignment="Center" Background="Transparent">
                         <Track x:Name="PART_Track">
                             <Track.DecreaseRepeatButton>
-                                <RepeatButton Command="Slider.DecreaseLarge" 
+                                <RepeatButton IsHitTestVisible="False" Focusable="False" 
                                               Background="{TemplateBinding Foreground}" 
                                               Template="{StaticResource SliderRepeatButtonTemplate}"/>
                             </Track.DecreaseRepeatButton>
