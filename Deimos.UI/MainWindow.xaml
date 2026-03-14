@@ -80,25 +80,25 @@
                         <MenuItem x:Name="MenuItemExit" Header="E_xit" Click="ExitClick"/> <!-- Exit command with X access key -->
                     </MenuItem>
 
-            <MenuItem Header="_List">   <!-- Clickable submenu "List" with shortcut enabled-->
-                <MenuItem Header="Add static" />
-                <MenuItem Header="Edit static" />
-                <Separator />   <!-- Thin horizontal line for separation -->
-                <MenuItem Header="Add" />
-                <MenuItem Header="Edit" />
-                <MenuItem Header="Remove" />
-            </MenuItem>
-        </Menu>
-        
-        <!-- BOTTOM: Playback / controls area -->
-        <Border DockPanel.Dock="Bottom" Margin="12,0,12,12" Padding="12" 
-                Style="{StaticResource SectionBorderStyle}">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="12"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+                    <MenuItem Header="_List"> <!-- Playlist management menu -->
+                        <MenuItem Header="Add static"/>
+                        <MenuItem Header="Edit static"/>
+                        <Separator/> <!-- Visual separation between static and dynamic options -->
+                        <MenuItem Header="Add"/>
+                        <MenuItem Header="Edit"/>
+                        <MenuItem Header="Remove"/>
+                    </MenuItem>
+                </Menu>
+
+                <!-- Playback controls section -->
+                <Border DockPanel.Dock="Bottom" Margin="6,0,6,6" Padding="6" 
+                        Style="{StaticResource SectionBorderStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/> <!-- Timeline row -->
+                            <RowDefinition Height="12"/> <!-- Spacing row -->
+                            <RowDefinition Height="Auto"/> <!-- Transport controls row -->
+                        </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
