@@ -91,8 +91,7 @@
                             <Track.DecreaseRepeatButton>
                                 <RepeatButton Command="Slider.DecreaseLarge" 
                                               Background="{TemplateBinding Foreground}" 
-                                              Template="{StaticResource 
-                                              SliderRepeatButtonTemplate}"/>
+                                              Template="{StaticResource SliderRepeatButtonTemplate}"/>
                             </Track.DecreaseRepeatButton>
                             <Track.Thumb>
                                 <Thumb Template="{StaticResource SliderThumbTemplate}"/>
