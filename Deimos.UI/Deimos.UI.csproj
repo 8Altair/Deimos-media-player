@@ -28,6 +28,16 @@
       <Resource Include="Assets\Icons\Controls\shuffle.svg" />
       <None Remove="Assets\Icons\Controls\stop.svg" />
       <Resource Include="Assets\Icons\Controls\stop.svg" />
+      <None Remove="Assets\Icons\Deimos_logo.png" />
+      <Resource Include="Assets\Icons\Deimos_logo.png" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Page Update="Resources\Styles.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
     </ItemGroup>
 
 </Project>
