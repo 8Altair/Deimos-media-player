@@ -77,7 +77,7 @@
                 <!-- Main menu -->
                 <Menu DockPanel.Dock="Top"> <!-- Container for top-level menu items -->
                     <MenuItem x:Name="MenuItemFile" Header="_File"> <!-- File menu with Alt+F -->
-                        <MenuItem x:Name="MenuItemExit" Header="E_xit" Click="ExitClick"/> <!-- Exit command with X access key -->
+                        <MenuItem x:Name="MenuItemExit" Header="E_xit" Tag="Destructive" Click="ExitClick"/> <!-- Exit command with X access key -->
                     </MenuItem>
 
                     <MenuItem Header="_List"> <!-- Playlist management menu -->

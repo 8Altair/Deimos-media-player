@@ -10,6 +10,7 @@
     <SolidColorBrush x:Key="MutedTextBrush" Color="#A7B5C5"/>
     <SolidColorBrush x:Key="AccentBrush" Color="#A32138"/>
     <SolidColorBrush x:Key="AccentHoverBrush" Color="#C72A45"/>
+    <SolidColorBrush x:Key="MenuItemHoverBrush" Color="#4DA32138"/>
     <SolidColorBrush x:Key="ButtonFaceBrush" Color="#E3EAF3"/>
     <SolidColorBrush x:Key="ButtonHoverBrush" Color="#F4F7FB"/>
     <SolidColorBrush x:Key="ButtonPressedBrush" Color="#C8D1DD"/>
@@ -28,6 +29,13 @@
         <GradientStop Color="#0F1823" Offset="1"/>
     </LinearGradientBrush>
 
+    <!-- Menu separator gradient line -->
+    <LinearGradientBrush x:Key="MenuSeparatorBrush" StartPoint="0,0.5" EndPoint="1,0.5">
+        <GradientStop Color="#1A2B3C" Offset="0"/>
+        <GradientStop Color="#2A415A" Offset="0.5"/>
+        <GradientStop Color="#1A2B3C" Offset="1"/>
+    </LinearGradientBrush>
+
     <Style x:Key="SectionBorderStyle" TargetType="Border">
         <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}"/>
         <Setter Property="BorderBrush" Value="{StaticResource ControlBorderBrush}"/>
@@ -44,13 +52,68 @@
     <Style TargetType="MenuItem">
         <Setter Property="Background" Value="{StaticResource PanelBackgroundBrush}"/>
         <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}"/>
-        <Setter Property="Padding" Value="6,2"/>
-        <Style.Triggers>
-            <Trigger Property="IsHighlighted" Value="True">
-                <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
-                <Setter Property="Foreground" Value="White"/>
-            </Trigger>
-        </Style.Triggers>
+        <Setter Property="Padding" Value="8,3"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="MenuItem">
+                    <Grid>
+                        <Border x:Name="Border" Background="{TemplateBinding Background}"
+                                BorderBrush="Transparent" BorderThickness="0"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter ContentSource="Header" RecognizesAccessKey="True"/>
+                        </Border>
+                        <Popup x:Name="PART_Popup" Placement="Bottom" IsOpen="{TemplateBinding IsSubmenuOpen}"
+                               AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+                            <Border Background="{StaticResource PanelBackgroundBrush}"
+                                    BorderBrush="{StaticResource ControlBorderBrush}"
+                                    BorderThickness="0.5" CornerRadius="2" Padding="0">
+                                <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Border" Property="Background" 
+                                    Value="{StaticResource MenuItemHoverBrush}"/>
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsHighlighted" Value="True"/>
+                                <Condition Property="Tag" Value="Destructive"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Border" Property="Background" 
+                                    Value="{StaticResource AccentBrush}"/>
+                            <Setter Property="Foreground" Value="White"/>
+                        </MultiTrigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" 
+                                    Value="{StaticResource MutedTextBrush}"/>
+                        </Trigger>
+                        <Trigger Property="Role" Value="TopLevelHeader">
+                            <Setter Property="Padding" Value="10,4"/>
+                        </Trigger>
+                        <Trigger Property="Role" Value="SubmenuItem">
+                            <Setter Property="Padding" Value="10,4"/>
+                            <Setter TargetName="PART_Popup" Property="Placement" Value="Right"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="{x:Static MenuItem.SeparatorStyleKey}" TargetType="Separator">
+        <Setter Property="Margin" Value="0,4"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Separator">
+                    <Border Height="1"
+                            Background="{StaticResource MenuSeparatorBrush}"
+                            HorizontalAlignment="Stretch"
+                            SnapsToDevicePixels="True"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <Style TargetType="Label">
