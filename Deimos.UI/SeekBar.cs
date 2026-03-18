@@ -1,78 +1,44 @@
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-
 namespace Deimos.UI;
 
-public partial class MainWindow
+public sealed class SeekBar(double minimum = 0, double maximum = 100)
 {
-    private bool _isDraggingSeekBar;
-    private const double SeekMinimum = 0;
-    private const double SeekMaximum = 100;
-    private double _seekValue;
+    public bool IsDragging { get; private set; }
+    private double Minimum { get; } = minimum;
+    private double Maximum { get; } = maximum;
+    private double Value { get; set; }
 
-    private void SeekBar_OnMouseLeftButtonDown(object? _, MouseButtonEventArgs e)
+    public void BeginDrag()
     {
-        _isDraggingSeekBar = true;
-        SeekBar.CaptureMouse();
-        SetSeekBarValueFromMouse(e.GetPosition(SeekBar).X);
+        IsDragging = true;
     }
 
-    private void SeekBar_OnMouseMove(object? _, MouseEventArgs e)
+    public void EndDrag()
     {
-        if (!_isDraggingSeekBar || e.LeftButton != MouseButtonState.Pressed)
-            return;
-
-        SetSeekBarValueFromMouse(e.GetPosition(SeekBar).X);
+        IsDragging = false;
     }
 
-    private void SeekBar_OnMouseLeftButtonUp(object? _, MouseButtonEventArgs e)
+    public bool UpdateFromMouse(double mouseX, double width)
     {
-        if (!_isDraggingSeekBar)
-            return;
-
-        _isDraggingSeekBar = false;
-        SetSeekBarValueFromMouse(e.GetPosition(SeekBar).X);
-        SeekBar.ReleaseMouseCapture();
-    }
-
-    private void SeekBar_OnSizeChanged(object? _, SizeChangedEventArgs e)
-    {
-        UpdateSeekBarVisual();
-    }
-
-    private void SetSeekBarValueFromMouse(double mouseX)
-    {
-        var width = SeekBar.ActualWidth;
-
         if (width <= 0)
-            return;
+            return false;
 
-        var ratio = mouseX / width;
-        ratio = Math.Max(0, Math.Min(1, ratio));
-
-        _seekValue = SeekMinimum + (SeekMaximum - SeekMinimum) * ratio;
-        UpdateSeekBarVisual();
+        var ratio = Clamp(mouseX / width);
+        Value = Minimum + (Maximum - Minimum) * ratio;
+        return true;
     }
 
-    private void UpdateSeekBarVisual()
+    public double GetRatio()
     {
-        var width = SeekBar.ActualWidth;
+        var range = Maximum - Minimum;
 
-        if (width <= 0)
-            return;
+        if (range <= 0)
+            return 0;
 
-        const double range = SeekMaximum - SeekMinimum;
+        return Clamp((Value - Minimum) / range);
+    }
 
-        var ratio = (_seekValue - SeekMinimum) / range;
-        ratio = Math.Max(0, Math.Min(1, ratio));
-
-        var progressWidth = width * ratio;
-        SeekBarProgress.Width = progressWidth;
-
-        var thumbLeft = progressWidth - SeekBarThumb.Width / 2;
-        thumbLeft = Math.Max(0, Math.Min(width - SeekBarThumb.Width, thumbLeft));
-
-        Canvas.SetLeft(SeekBarThumb, thumbLeft);
+    private static double Clamp(double value)
+    {
+        return Math.Max(0, Math.Min(1, value));
     }
 }
