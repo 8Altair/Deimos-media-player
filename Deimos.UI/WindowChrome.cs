@@ -5,97 +5,106 @@ using System.Windows.Interop;
 
 namespace Deimos.UI;
 
-public sealed class WindowChrome
+public static partial class WindowChrome
 {
-    public static IntPtr HandleWindowProc(Window window, IntPtr hwnd, int msg, IntPtr lParam, ref bool handled)
+    public static IntPtr HandleWindowProcedure(Window window, IntPtr windowHandle, 
+        int messageIdentifier, IntPtr longParameterPointer, ref bool isHandled)
     {
-        const int wmGetMinMaxInfo = 0x0024;
+        const int getMinimumMaximumInformationMessageIdentifier = 0x0024;
 
-        if (msg != wmGetMinMaxInfo)
+        if (messageIdentifier != getMinimumMaximumInformationMessageIdentifier)
             return IntPtr.Zero;
 
-        UpdateMinMaxInfo(window, hwnd, lParam);
-        handled = true;
+        UpdateMinimumMaximumInformation(window, windowHandle, longParameterPointer);
+        isHandled = true;
 
         return IntPtr.Zero;
     }
 
-    private static void UpdateMinMaxInfo(Window window, IntPtr hwnd, IntPtr lParam)
+    private static void UpdateMinimumMaximumInformation(Window window, IntPtr windowHandle, IntPtr longParameterPointer)
     {
-        var mmi = Marshal.PtrToStructure<MinMaxInfo>(lParam);
-        var monitor = MonitorFromWindow(hwnd, MonitorDefaultToNearest);
+        var minimumMaximumInformation = Marshal.PtrToStructure<MinimumMaximumInformation>(longParameterPointer);
+        var monitorHandle = GetMonitorHandleFromWindow(windowHandle, MonitorDefaultToNearestFlag);
 
-        if (monitor != IntPtr.Zero)
+        if (monitorHandle != IntPtr.Zero)
         {
-            var monitorInfo = new MonitorInfo
+            var monitorInformation = new MonitorInformation
             {
-                cbSize = Marshal.SizeOf<MonitorInfo>()
+                StructureSize = Marshal.SizeOf<MonitorInformation>()
             };
 
-            GetMonitorInfo(monitor, ref monitorInfo);
+            if (!GetMonitorInformation(monitorHandle, ref monitorInformation))
+                return;
 
-            var workArea = monitorInfo.rcWork;
-            var monitorArea = monitorInfo.rcMonitor;
+            var workAreaRectangle = monitorInformation.WorkArea;
+            var monitorAreaRectangle = monitorInformation.MonitorArea;
 
-            mmi.ptMaxPosition.x = Math.Abs(workArea.left - monitorArea.left);
-            mmi.ptMaxPosition.y = Math.Abs(workArea.top - monitorArea.top);
-            mmi.ptMaxSize.x = Math.Abs(workArea.right - workArea.left);
-            mmi.ptMaxSize.y = Math.Abs(workArea.bottom - workArea.top);
+            minimumMaximumInformation.MaximumPositionPoint.Horizontal = 
+                Math.Abs(workAreaRectangle.Left - monitorAreaRectangle.Left);
+            minimumMaximumInformation.MaximumPositionPoint.Vertical = 
+                Math.Abs(workAreaRectangle.Top - monitorAreaRectangle.Top);
+            minimumMaximumInformation.MaximumSizePoint.Horizontal = 
+                Math.Abs(workAreaRectangle.Right - workAreaRectangle.Left);
+            minimumMaximumInformation.MaximumSizePoint.Vertical = 
+                Math.Abs(workAreaRectangle.Bottom - workAreaRectangle.Top);
         }
 
-        var source = HwndSource.FromHwnd(hwnd);
+        var windowSource = HwndSource.FromHwnd(windowHandle);
 
-        if (source?.CompositionTarget != null)
+        if (windowSource?.CompositionTarget != null)
         {
-            var transformToDevice = source.CompositionTarget.TransformToDevice;
+            var transformToDevice = windowSource.CompositionTarget.TransformToDevice;
 
-            mmi.ptMinTrackSize.x = (int)Math.Ceiling(window.MinWidth * transformToDevice.M11);
-            mmi.ptMinTrackSize.y = (int)Math.Ceiling(window.MinHeight * transformToDevice.M22);
+            minimumMaximumInformation.MinimumTrackSizePoint.Horizontal = 
+                (int)Math.Ceiling(window.MinWidth * transformToDevice.M11);
+            minimumMaximumInformation.MinimumTrackSizePoint.Vertical = 
+                (int)Math.Ceiling(window.MinHeight * transformToDevice.M22);
         }
 
-        Marshal.StructureToPtr(mmi, lParam, true);
+        Marshal.StructureToPtr(minimumMaximumInformation, longParameterPointer, true);
     }
 
-    private const int MonitorDefaultToNearest = 0x00000002;
+    private const int MonitorDefaultToNearestFlag = 0x00000002;
 
-    [DllImport("user32.dll", CharSet = CharSet.Auto)]
-    private static extern IntPtr MonitorFromWindow(IntPtr hwnd, int dwFlags);
+    [LibraryImport("user32.dll", EntryPoint = "MonitorFromWindow")]
+    private static partial IntPtr GetMonitorHandleFromWindow(IntPtr windowHandle, int defaultMonitorSelectionFlag);
 
-    [DllImport("user32.dll", CharSet = CharSet.Auto)]
-    private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MonitorInfo lpmi);
+    [LibraryImport("user32.dll", EntryPoint = "GetMonitorInfoW")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool GetMonitorInformation(IntPtr monitorHandle, ref MonitorInformation monitorInformation);
 
     [StructLayout(LayoutKind.Sequential)]
-    private struct Point
+    private struct PointCoordinates
     {
-        public int x;
-        public int y;
+        public int Horizontal;
+        public int Vertical;
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    private struct MinMaxInfo
+    private struct MinimumMaximumInformation
     {
-        public Point ptReserved;
-        public Point ptMaxSize;
-        public Point ptMaxPosition;
-        public Point ptMinTrackSize;
-        public Point ptMaxTrackSize;
+        public PointCoordinates ReservedPoint;
+        public PointCoordinates MaximumSizePoint;
+        public PointCoordinates MaximumPositionPoint;
+        public PointCoordinates MinimumTrackSizePoint;
+        public PointCoordinates MaximumTrackSizePoint;
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    private struct RectangleBounds
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+    }
+    
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-    private struct MonitorInfo
+    private struct MonitorInformation
     {
-        public int cbSize;
-        public Rect rcMonitor;
-        public Rect rcWork;
-        public int dwFlags;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct Rect
-    {
-        public int left;
-        public int top;
-        public int right;
-        public int bottom;
+        public int StructureSize;
+        public RectangleBounds MonitorArea;
+        public RectangleBounds WorkArea;
+        public int Flags;
     }
 }

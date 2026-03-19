@@ -46,7 +46,7 @@ public partial class MainWindow : Window    // Connects partial logic from xaml 
 
     private IntPtr WindowProc(IntPtr hwnd, int msg, IntPtr _, IntPtr lParam, ref bool handled)
     {
-        return WindowChrome.HandleWindowProc(this, hwnd, msg, lParam, ref handled);
+        return WindowChrome.HandleWindowProcedure(this, hwnd, msg, lParam, ref handled);
     }
     
     private void TitleBar_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
