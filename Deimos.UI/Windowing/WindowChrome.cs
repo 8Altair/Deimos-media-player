@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
@@ -7,7 +8,7 @@ namespace Deimos.UI.Windowing;
 
 public sealed partial class WindowChrome
 {
-    public IntPtr HandleWindowProcedure(Window window, IntPtr windowHandle, int messageIdentifier, 
+    public static IntPtr HandleWindowProcedure(Window window, IntPtr windowHandle, int messageIdentifier, 
         IntPtr longParameterPointer, ref bool isHandled)
     {
         const int getMinimumMaximumInformationMessageIdentifier = 0x0024;
@@ -15,13 +16,14 @@ public sealed partial class WindowChrome
         if (messageIdentifier != getMinimumMaximumInformationMessageIdentifier)
             return IntPtr.Zero;
 
+        Debug.WriteLine("WindowChrome: Handling WM_GETMINMAXINFO.");    // Trace window sizing query handling
         UpdateMinimumMaximumInformation(window, windowHandle, longParameterPointer);
         isHandled = true;
 
         return IntPtr.Zero;
     }
 
-    private void UpdateMinimumMaximumInformation(Window window, IntPtr windowHandle, IntPtr longParameterPointer)
+    private static void UpdateMinimumMaximumInformation(Window window, IntPtr windowHandle, IntPtr longParameterPointer)
     {
         var minimumMaximumInformation =
             Marshal.PtrToStructure<MinimumMaximumInformation>(longParameterPointer);
@@ -35,7 +37,10 @@ public sealed partial class WindowChrome
             };
 
             if (!GetMonitorInformation(monitorHandle, ref monitorInformation))
+            {
+                Debug.WriteLine("WindowChrome: GetMonitorInformation failed."); // Trace missing monitor details
                 return;
+            }
 
             var workAreaRectangle = monitorInformation.WorkArea;
             var monitorAreaRectangle = monitorInformation.MonitorArea;
@@ -49,6 +54,10 @@ public sealed partial class WindowChrome
             minimumMaximumInformation.MaximumSizePoint.Vertical =
                 Math.Abs(workAreaRectangle.Bottom - workAreaRectangle.Top);
         }
+        else
+        {
+            Debug.WriteLine("WindowChrome: Monitor handle not found; using fallback sizing.");  // Trace fallback path
+        }
 
         var windowSource = HwndSource.FromHwnd(windowHandle);
 
@@ -60,6 +69,10 @@ public sealed partial class WindowChrome
                 (int)Math.Ceiling(window.MinWidth * transformToDevice.M11);
             minimumMaximumInformation.MinimumTrackSizePoint.Vertical =
                 (int)Math.Ceiling(window.MinHeight * transformToDevice.M22);
+        }
+        else
+        {
+            Debug.WriteLine("WindowChrome: Composition target unavailable; skipping DPI scaling."); // Trace missing DPI info
         }
 
         Marshal.StructureToPtr(minimumMaximumInformation, longParameterPointer, true);

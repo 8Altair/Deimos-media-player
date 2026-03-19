@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace Deimos.UI.Controls;
 
 /// <summary>
@@ -18,6 +20,7 @@ public sealed class SeekBar(double minimum = 0, double maximum = 100)
     public void BeginDrag()
     {
         IsDragging = true;  // Enable drag state so the UI can update on mouse move
+        Debug.WriteLine("SeekBar: Drag started.");  // Trace drag start within logic
     }
 
     /// <summary>
@@ -26,6 +29,7 @@ public sealed class SeekBar(double minimum = 0, double maximum = 100)
     public void EndDrag()
     {
         IsDragging = false; // Disable drag state to prevent further updates
+        Debug.WriteLine("SeekBar: Drag ended.");    // Trace drag end within logic
     }
 
     /// <summary>
@@ -37,7 +41,10 @@ public sealed class SeekBar(double minimum = 0, double maximum = 100)
     public bool UpdateFromMouse(double mouseX, double width)
     {
         if (width <= 0) // Guard against invalid width before dividing
+        {
+            Debug.WriteLine("SeekBar: Update skipped due to invalid width.");   // Trace invalid width input
             return false;   // Skip update to avoid divide-by-zero
+        }
 
         var ratio = Clamp(mouseX / width);  // Normalize mouse position to a 0-1 range
         Value = Minimum + (Maximum - Minimum) * ratio;  // Convert ratio to a logical value
@@ -52,10 +59,10 @@ public sealed class SeekBar(double minimum = 0, double maximum = 100)
     {
         var range = Maximum - Minimum;  // Compute the value range
 
-        if (range <= 0) // Guard against invalid configuration
-            return 0;   // Fall back to the minimum position
+        if (!(range <= 0)) return Clamp((Value - Minimum) / range); // Normalize the current value
+        Debug.WriteLine("SeekBar: Invalid range detected.");    // Trace invalid range configuration
+        return 0;   // Fall back to the minimum position
 
-        return Clamp((Value - Minimum) / range);    // Normalize the current value
     }
 
     /// <summary>

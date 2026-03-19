@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -19,6 +20,7 @@ public partial class MainWindow
     /// </summary>
     private void InitializeSeekBarLogic()
     {
+        Debug.WriteLine("MainWindow: Initializing seek bar logic.");    // Trace seek bar setup entry
         UpdateSeekBarVisual();  // Ensure the visual state matches the logic immediately
     }
 
@@ -29,6 +31,7 @@ public partial class MainWindow
     /// <param name="e">Mouse data used to compute the initial position.</param>
     private void SeekBar_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+        Debug.WriteLine("MainWindow: Seek bar drag started.");  // Trace drag start
         _seekBar.BeginDrag();   // Mark the drag state for subsequent move events
         SeekBar.CaptureMouse(); // Keep receiving mouse events even if the pointer leaves the control
         UpdateSeekBarFromMouse(e.GetPosition(SeekBar).X);   // Update value from the initial click position
@@ -58,6 +61,7 @@ public partial class MainWindow
             return; // Prevents accidental updates on unrelated mouse up events
 
         _seekBar.EndDrag(); // Finalize the drag state
+        Debug.WriteLine("MainWindow: Seek bar drag ended.");    // Trace drag end
         UpdateSeekBarFromMouse(e.GetPosition(SeekBar).X);   // Apply the last mouse position
         SeekBar.ReleaseMouseCapture();  // Restore normal mouse routing to other controls
     }
@@ -69,6 +73,7 @@ public partial class MainWindow
     /// <param name="e">Size change data used to trigger a redraw.</param>
     private void SeekBar_OnSizeChanged(object sender, SizeChangedEventArgs e)
     {
+        Debug.WriteLine("MainWindow: Seek bar size changed.");  // Trace layout changes.
         UpdateSeekBarVisual();  // Ensure the thumb and progress bar match the new size
     }
 
