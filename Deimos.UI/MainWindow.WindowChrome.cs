@@ -2,30 +2,36 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 
+using Deimos.UI.Windowing;
+
 
 namespace Deimos.UI;
 
 public partial class MainWindow
 {
+    private readonly WindowChrome _windowChrome = new();
+
     private void InitializeWindowChrome()
     {
         SourceInitialized += MainWindow_SourceInitialized;
     }
 
-    private void MainWindow_SourceInitialized(object? sender, EventArgs e)
+    private void MainWindow_SourceInitialized(object? sender, EventArgs eventArgs)
     {
-        var handle = new WindowInteropHelper(this).Handle;
-        HwndSource.FromHwnd(handle)?.AddHook(WindowProc);
+        var windowHandle = new WindowInteropHelper(this).Handle;
+        HwndSource.FromHwnd(windowHandle)?.AddHook(HandleWindowProcedureHook);
     }
 
-    private IntPtr WindowProc(IntPtr hwnd, int msg, IntPtr _, IntPtr lParam, ref bool handled)
+    private IntPtr HandleWindowProcedureHook(IntPtr windowHandle, int messageIdentifier, 
+        IntPtr unusedWindowParameterPointer, IntPtr longParameterPointer, ref bool isHandled)
     {
-        return WindowChrome.HandleWindowProcedure(this, hwnd, msg, lParam, ref handled);
+        _ = unusedWindowParameterPointer;
+        return _windowChrome.HandleWindowProcedure(this, windowHandle, messageIdentifier, longParameterPointer, ref isHandled);
     }
     
-    private void TitleBar_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    private void TitleBar_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs mouseButtonEventArgs)
     {
-        if (e.ClickCount == 2)
+        if (mouseButtonEventArgs.ClickCount == 2)
         {
             ToggleWindowState();
             return;
@@ -34,17 +40,17 @@ public partial class MainWindow
         DragMove(); // Drag the custom title bar to move the window
     }
 
-    private void Minimize_Click(object sender, RoutedEventArgs e)
+    private void Minimize_Click(object sender, RoutedEventArgs routedEventArgs)
     {
         WindowState = WindowState.Minimized;    // Minimize the window
     }
 
-    private void MaximizeRestore_Click(object sender, RoutedEventArgs e)
+    private void MaximizeRestore_Click(object sender, RoutedEventArgs routedEventArgs)
     {
         ToggleWindowState();    // Toggle between normal and maximized states
     }
 
-    private void Close_Click(object sender, RoutedEventArgs e)
+    private void Close_Click(object sender, RoutedEventArgs routedEventArgs)
     {
         Close();    // Close the current window
     }

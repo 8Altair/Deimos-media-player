@@ -3,12 +3,12 @@ using System.Windows;
 using System.Windows.Interop;
 
 
-namespace Deimos.UI;
+namespace Deimos.UI.Windowing;
 
-public static partial class WindowChrome
+public sealed partial class WindowChrome
 {
-    public static IntPtr HandleWindowProcedure(Window window, IntPtr windowHandle, 
-        int messageIdentifier, IntPtr longParameterPointer, ref bool isHandled)
+    public IntPtr HandleWindowProcedure(Window window, IntPtr windowHandle, int messageIdentifier, 
+        IntPtr longParameterPointer, ref bool isHandled)
     {
         const int getMinimumMaximumInformationMessageIdentifier = 0x0024;
 
@@ -21,9 +21,10 @@ public static partial class WindowChrome
         return IntPtr.Zero;
     }
 
-    private static void UpdateMinimumMaximumInformation(Window window, IntPtr windowHandle, IntPtr longParameterPointer)
+    private void UpdateMinimumMaximumInformation(Window window, IntPtr windowHandle, IntPtr longParameterPointer)
     {
-        var minimumMaximumInformation = Marshal.PtrToStructure<MinimumMaximumInformation>(longParameterPointer);
+        var minimumMaximumInformation =
+            Marshal.PtrToStructure<MinimumMaximumInformation>(longParameterPointer);
         var monitorHandle = GetMonitorHandleFromWindow(windowHandle, MonitorDefaultToNearestFlag);
 
         if (monitorHandle != IntPtr.Zero)
@@ -39,13 +40,13 @@ public static partial class WindowChrome
             var workAreaRectangle = monitorInformation.WorkArea;
             var monitorAreaRectangle = monitorInformation.MonitorArea;
 
-            minimumMaximumInformation.MaximumPositionPoint.Horizontal = 
+            minimumMaximumInformation.MaximumPositionPoint.Horizontal =
                 Math.Abs(workAreaRectangle.Left - monitorAreaRectangle.Left);
-            minimumMaximumInformation.MaximumPositionPoint.Vertical = 
+            minimumMaximumInformation.MaximumPositionPoint.Vertical =
                 Math.Abs(workAreaRectangle.Top - monitorAreaRectangle.Top);
-            minimumMaximumInformation.MaximumSizePoint.Horizontal = 
+            minimumMaximumInformation.MaximumSizePoint.Horizontal =
                 Math.Abs(workAreaRectangle.Right - workAreaRectangle.Left);
-            minimumMaximumInformation.MaximumSizePoint.Vertical = 
+            minimumMaximumInformation.MaximumSizePoint.Vertical =
                 Math.Abs(workAreaRectangle.Bottom - workAreaRectangle.Top);
         }
 
@@ -55,9 +56,9 @@ public static partial class WindowChrome
         {
             var transformToDevice = windowSource.CompositionTarget.TransformToDevice;
 
-            minimumMaximumInformation.MinimumTrackSizePoint.Horizontal = 
+            minimumMaximumInformation.MinimumTrackSizePoint.Horizontal =
                 (int)Math.Ceiling(window.MinWidth * transformToDevice.M11);
-            minimumMaximumInformation.MinimumTrackSizePoint.Vertical = 
+            minimumMaximumInformation.MinimumTrackSizePoint.Vertical =
                 (int)Math.Ceiling(window.MinHeight * transformToDevice.M22);
         }
 
@@ -98,7 +99,7 @@ public static partial class WindowChrome
         public int Right;
         public int Bottom;
     }
-    
+
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
     private struct MonitorInformation
     {

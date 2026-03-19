@@ -8,7 +8,7 @@ namespace Deimos.UI;    // Defines the namespace this class belongs to
 /// <summary>
 /// Interaction logic for MainWindow.xaml
 /// </summary>
-public partial class MainWindow : Window    // Connects partial logic from xaml file and inherits Window class
+public partial class MainWindow    // Connects partial logic from xaml file and inherits Window class
 {
     public MainWindow() // Constructor
     {

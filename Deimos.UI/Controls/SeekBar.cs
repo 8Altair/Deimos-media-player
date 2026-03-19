@@ -1,4 +1,4 @@
-namespace Deimos.UI;
+namespace Deimos.UI.Controls;
 
 public sealed class SeekBar(double minimum = 0, double maximum = 100)
 {
