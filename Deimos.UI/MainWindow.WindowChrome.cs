@@ -30,7 +30,7 @@ public partial class MainWindow
     {
         _ = unusedWindowParameterPointer;
         Debug.WriteLine($"MainWindow: Window procedure hook received message {messageIdentifier}.");    // Trace message flow
-        return WindowChrome.HandleWindowProcedure(this, windowHandle, messageIdentifier, longParameterPointer, ref isHandled);
+        return _windowChrome.HandleWindowProcedure(this, windowHandle, messageIdentifier, longParameterPointer, ref isHandled);
     }
     
     private void TitleBar_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs mouseButtonEventArgs)

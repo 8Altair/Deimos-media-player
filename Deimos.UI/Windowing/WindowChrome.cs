@@ -8,7 +8,7 @@ namespace Deimos.UI.Windowing;
 
 public sealed partial class WindowChrome
 {
-    public static IntPtr HandleWindowProcedure(Window window, IntPtr windowHandle, int messageIdentifier, 
+    public IntPtr HandleWindowProcedure(Window window, IntPtr windowHandle, int messageIdentifier, 
         IntPtr longParameterPointer, ref bool isHandled)
     {
         const int getMinimumMaximumInformationMessageIdentifier = 0x0024;
@@ -23,7 +23,7 @@ public sealed partial class WindowChrome
         return IntPtr.Zero;
     }
 
-    private static void UpdateMinimumMaximumInformation(Window window, IntPtr windowHandle, IntPtr longParameterPointer)
+    private void UpdateMinimumMaximumInformation(Window window, IntPtr windowHandle, IntPtr longParameterPointer)
     {
         var minimumMaximumInformation =
             Marshal.PtrToStructure<MinimumMaximumInformation>(longParameterPointer);
