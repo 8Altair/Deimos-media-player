@@ -197,7 +197,7 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Playlist view -->
-                        <ListView x:Name="LvPlayList" Grid.Column="0">
+                        <ListView x:Name="LvPlayList" Grid.Column="0" ItemsSource="{Binding PlayList}">
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem" 
                                        BasedOn="{StaticResource PlaylistItemStyle}"/> <!-- Shared playlist row styling -->

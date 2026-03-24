@@ -2,6 +2,9 @@
 using System.Windows;   // Core WPF types like Window, Application, MessageBox
 using System.Windows.Controls;  // WPF controls like MenuItem and ListViewItem
 
+using System.Collections.ObjectModel;
+using Deimos.UI.Models;
+
 
 namespace Deimos.UI;    // Defines the namespace this class belongs to
 
@@ -10,16 +13,33 @@ namespace Deimos.UI;    // Defines the namespace this class belongs to
 /// </summary>
 public partial class MainWindow    // Connects partial logic from xaml file and inherits Window class
 {
+    public ObservableCollection<MediaFile> PlayList { get; } = []; // Notifies UI when items are added/removed
+    
     public MainWindow() // Constructor
     {
         InitializeComponent();  // Builds and connects the XAML UI components to this class
         InitializeWindowChrome();
         InitializeSeekBarLogic();
         
-        // Temporary test items
-        LvPlayList.Items.Add("Song1.mp3");
-        LvPlayList.Items.Add("Song2.mp3");
-        LvPlayList.Items.Add("Song3.mp3");
+        PlayList.Add(new MediaFile
+        {
+            Title = "Song 1",
+            Artist = "Artist 1",
+            FilePath = @"C:\Music\song1.mp3",
+            ImagePath = "Assets/Images/default.png",
+            Duration = TimeSpan.FromMinutes(3)
+        });
+
+        PlayList.Add(new MediaFile
+        {
+            Title = "Song 2",
+            Artist = "Artist 2",
+            FilePath = @"C:\Music\song2.mp3",
+            ImagePath = "Assets/Images/default.png",
+            Duration = TimeSpan.FromMinutes(4)
+        });
+        
+        DataContext = this;
     }
     
     /// <summary>
