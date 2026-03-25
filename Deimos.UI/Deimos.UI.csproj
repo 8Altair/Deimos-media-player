@@ -12,6 +12,7 @@
 
     <ItemGroup>
       <PackageReference Include="SharpVectors.Wpf" Version="1.8.5" />
+      <PackageReference Include="TagLibSharp" Version="2.3.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -31,6 +32,8 @@
       <Resource Include="Assets\Icons\Controls\stop.svg" />
       <None Remove="Assets\Icons\Deimos_logo.png" />
       <Resource Include="Assets\Icons\Deimos_logo.png" />
+      <None Remove="Assets\Default_cover\Default.png" />
+      <Resource Include="Assets\Default_cover\Default.png" />
     </ItemGroup>
 
     <ItemGroup>

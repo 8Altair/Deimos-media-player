@@ -197,7 +197,8 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Playlist view -->
-                        <ListView x:Name="LvPlayList" Grid.Column="0" ItemsSource="{Binding PlayList}">
+                        <ListView x:Name="LvPlayList" Grid.Column="0" ItemsSource="{Binding PlayList}"
+                                  MouseDoubleClick="PlayList_OnMouseDoubleClick">
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem" 
                                        BasedOn="{StaticResource PlaylistItemStyle}"/> <!-- Shared playlist row styling -->
@@ -212,7 +213,10 @@
                                 Background="{StaticResource PlaybackSurfaceBrush}" 
                                 BorderBrush="{StaticResource ControlBorderBrush}" 
                                 BorderThickness="1" CornerRadius="4">
-                            <MediaElement x:Name="Player"/> <!-- Main playback surface -->
+                            <Grid>
+                                <MediaElement x:Name="Player" LoadedBehavior="Manual" UnloadedBehavior="Manual"/> <!-- Main playback surface -->
+                                <Image x:Name="ImageViewer" Visibility="Collapsed" Stretch="Uniform"/>
+                            </Grid>
                         </Border>
                     </Grid>
                 </Border>
