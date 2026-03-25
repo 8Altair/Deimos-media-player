@@ -24,6 +24,7 @@ public sealed class MediaPlayback
     private readonly MediaElement _player;
     private readonly Image _imageViewer;
     private readonly TextBlock _nowPlaying;
+    private MediaFile? _currentlyPlaying;
 
     public MediaPlayback(ObservableCollection<MediaFile> playList, MediaElement player, 
         Image imageViewer, TextBlock nowPlaying)
@@ -150,6 +151,7 @@ public sealed class MediaPlayback
                 _player.Source = null;
                 _imageViewer.Source = new BitmapImage(new Uri(selectedMedia.FilePath, UriKind.Absolute));
                 _nowPlaying.Text = $"Viewing: {selectedMedia.Title ?? Path.GetFileNameWithoutExtension(selectedMedia.FilePath)}";
+                MarkAsPlaying(selectedMedia);
                 return;
             }
             catch (Exception ex)
@@ -185,6 +187,7 @@ public sealed class MediaPlayback
             _player.Source = new Uri(selectedMedia.FilePath, UriKind.Absolute);
             _player.Play();
             _nowPlaying.Text = $"Now playing: {selectedMedia.Title ?? Path.GetFileNameWithoutExtension(selectedMedia.FilePath)}";
+            MarkAsPlaying(selectedMedia);
         }
         catch (Exception ex)
         {
@@ -249,6 +252,20 @@ public sealed class MediaPlayback
         {
             Debug.WriteLine($"Failed to load artwork {selectedMedia.ImagePath}. Error: {ex.Message}");
             return null;
+        }
+    }
+
+    private void MarkAsPlaying(MediaFile selectedMedia)
+    {
+        if (!ReferenceEquals(_currentlyPlaying, selectedMedia))
+        {
+            if (_currentlyPlaying is not null)
+            {
+                _currentlyPlaying.IsPlaying = false;
+            }
+
+            selectedMedia.IsPlaying = true;
+            _currentlyPlaying = selectedMedia;
         }
     }
 }
