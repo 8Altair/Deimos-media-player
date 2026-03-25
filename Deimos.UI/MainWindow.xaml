@@ -198,6 +198,7 @@
 
                         <!-- Playlist view -->
                         <ListView x:Name="LvPlayList" Grid.Column="0" ItemsSource="{Binding PlayList}"
+                                  ItemTemplate="{StaticResource PlaylistItemTemplate}"
                                   MouseDoubleClick="PlayList_OnMouseDoubleClick">
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem" 
