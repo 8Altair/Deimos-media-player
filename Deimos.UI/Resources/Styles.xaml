@@ -209,40 +209,52 @@
                          Value="True">
                 <Setter Property="Foreground" Value="#F2F6FB"/>
             </DataTrigger>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, 
+            Path=IsSelected}" 
+                         Value="True">
+                <Setter Property="Foreground" Value="#F2F6FB"/>
+            </DataTrigger>
         </Style.Triggers>
     </Style>
 
     <DataTemplate x:Key="PlaylistItemTemplate" DataType="{x:Type models:MediaFile}">
         <Grid>
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="4"/>
                 <ColumnDefinition Width="52"/>
                 <ColumnDefinition Width="8"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Border Width="48" Height="48" CornerRadius="4" VerticalAlignment="Center"
+            <Border x:Name="PlayingBar" Grid.Column="0" Margin="0,4,0,4" CornerRadius="2"
+                    Background="{StaticResource AccentBrush}" Visibility="Collapsed"/>
+
+            <Border Grid.Column="1" Width="48" Height="48" CornerRadius="4" VerticalAlignment="Center"
                     Background="{StaticResource PlaybackSurfaceBrush}"
                     BorderBrush="{StaticResource ControlBorderBrush}" BorderThickness="0.5">
                 <Image Source="{Binding ImagePath}" Stretch="UniformToFill"/>
             </Border>
 
-            <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold"
-                           Foreground="{Binding RelativeSource={RelativeSource 
-                           AncestorType=ListViewItem}, Path=Foreground}"
-                           TextTrimming="CharacterEllipsis"/>
-                <TextBlock Text="{Binding Artist}" 
-                           Style="{StaticResource PlaylistMetaTextStyle}"/>
-                <TextBlock Text="{Binding Album}" 
-                           Style="{StaticResource PlaylistMetaTextStyle}"/>
+            <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                <TextBlock x:Name="TitleText" Text="{Binding Title}" FontSize="14" FontWeight="SemiBold"
+                           Foreground="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, 
+                           Path=Foreground}" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Text="{Binding Artist}" Style="{StaticResource PlaylistMetaTextStyle}"/>
+                <TextBlock Text="{Binding Album}" Style="{StaticResource PlaylistMetaTextStyle}"/>
             </StackPanel>
 
-            <TextBlock Grid.Column="3" Margin="12,0,0,0" VerticalAlignment="Center"
+            <TextBlock Grid.Column="4" Margin="12,0,0,0" VerticalAlignment="Center"
                        Style="{StaticResource PlaylistMetaTextStyle}"
                        Text="{Binding Duration, StringFormat={}{0:hh\\:mm\\:ss}}"
                        HorizontalAlignment="Right"/>
         </Grid>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsPlaying}" Value="True">
+                <Setter TargetName="PlayingBar" Property="Visibility" Value="Visible"/>
+                <Setter TargetName="TitleText" Property="FontWeight" Value="Bold"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
     </DataTemplate>
 
     <Style TargetType="MediaElement">
