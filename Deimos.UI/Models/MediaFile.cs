@@ -1,17 +1,18 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 
 
 namespace Deimos.UI.Models;
 
 public class MediaFile: INotifyPropertyChanged
 {
-    private string? _title;
-    private string? _filePath;
-    private string? _imagePath;
-    private TimeSpan _duration;
-    private string? _artist;
-    private string? _album;
-    private bool _isPlaying;
+    private string? _title; // Track title text
+    private string? _filePath;  // Absolute path to media file
+    private string? _imagePath; // Cover art or image path
+    private TimeSpan _duration; // Media duration
+    private string? _artist;    // Artist metadata
+    private string? _album; // Album metadata
+    private bool _isPlaying;    // Playback state flag
 
     public string? Title
     {
@@ -21,7 +22,7 @@ public class MediaFile: INotifyPropertyChanged
             if (value != _title)
             {
                 _title = value;
-                OnPropertyChanged(nameof(Title));
+                OnPropertyChanged(nameof(Title));   // Notify UI that the title changed.
             }
         }
     }
@@ -34,7 +35,7 @@ public class MediaFile: INotifyPropertyChanged
             if (value != _filePath)
             {
                 _filePath = value;
-                OnPropertyChanged(nameof(FilePath));
+                OnPropertyChanged(nameof(FilePath));    // Notify UI that the file path changed.
             }
         }
     }
@@ -47,7 +48,7 @@ public class MediaFile: INotifyPropertyChanged
             if (value != _imagePath)
             {
                 _imagePath = value;
-                OnPropertyChanged(nameof(ImagePath));
+                OnPropertyChanged(nameof(ImagePath));   // Notify UI that the image path changed.
             }
         }
     }
@@ -60,7 +61,7 @@ public class MediaFile: INotifyPropertyChanged
             if (value != _duration)
             {
                 _duration = value;
-                OnPropertyChanged(nameof(Duration));
+                OnPropertyChanged(nameof(Duration));    // Notify UI that the duration changed.
             }
         }
     }
@@ -73,7 +74,7 @@ public class MediaFile: INotifyPropertyChanged
             if (_artist != value)
             {
                 _artist = value;
-                OnPropertyChanged(nameof(Artist));
+                OnPropertyChanged(nameof(Artist));  // Notify UI that the artist changed.
             }
         }
     }
@@ -86,7 +87,7 @@ public class MediaFile: INotifyPropertyChanged
             if (value != _album)
             {
                 _album = value;
-                OnPropertyChanged(nameof(Album));
+                OnPropertyChanged(nameof(Album));   // Notify UI that the album changed.
             }
         }
     }
@@ -99,20 +100,19 @@ public class MediaFile: INotifyPropertyChanged
             if (_isPlaying != value)
             {
                 _isPlaying = value;
-                OnPropertyChanged(nameof(IsPlaying));
+                OnPropertyChanged(nameof(IsPlaying));   // Notify UI that the playback state changed.
             }
         }
     }
 
-    public event PropertyChangedEventHandler? PropertyChanged;  // Event required by the INotifyPropertyChanged
+    public event PropertyChangedEventHandler? PropertyChanged;   // Event required by the INotifyPropertyChanged
 
+    /// <summary>
+    /// Raises a change notification for a single property.
+    /// </summary>
     protected void OnPropertyChanged(string propertyName)
     {
+        Debug.WriteLine($"Property changed: {propertyName}");
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));  // Notify the UI that property propertyName has changed on this object, if not null
-    }
-
-    public override string ToString()
-    {
-        return Title ?? "(Untitled)";
     }
 }
