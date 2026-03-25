@@ -26,6 +26,9 @@ public sealed class MediaPlayback
     private readonly TextBlock _nowPlaying;
     private MediaFile? _currentlyPlaying;
 
+    /// <summary>
+    /// Initializes playback service with playlist data and target UI controls.
+    /// </summary>
     public MediaPlayback(ObservableCollection<MediaFile> playList, MediaElement player, 
         Image imageViewer, TextBlock nowPlaying)
     {
@@ -35,6 +38,9 @@ public sealed class MediaPlayback
         _nowPlaying = nowPlaying;
     }
 
+    /// <summary>
+    /// Scans the default media folder and fills the playlist with metadata.
+    /// </summary>
     public void LoadDefaultMediaFiles()
     {
         if (!Directory.Exists(MediaFolder))
@@ -43,6 +49,7 @@ public sealed class MediaPlayback
             return;
         }
 
+        // Cache folder for extracted cover art
         var artworkCacheFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ArtworkCache");
         Directory.CreateDirectory(artworkCacheFolder);
         Debug.WriteLine($"Loading default media from: {MediaFolder}");
@@ -51,6 +58,7 @@ public sealed class MediaPlayback
         {
             var extension = Path.GetExtension(filePath).ToLowerInvariant();
 
+            // Images are added as viewable items without playback
             if (ImageExtensions.Contains(extension))
             {
                 Debug.WriteLine($"Detected image file: {filePath}");
@@ -68,6 +76,7 @@ public sealed class MediaPlayback
                 continue;
             }
 
+            // Skip files that are not audio or video
             if (!AudioExtensions.Contains(extension) && !VideoExtensions.Contains(extension))
             {
                 Debug.WriteLine($"Skipping unsupported file: {filePath}");
@@ -79,8 +88,7 @@ public sealed class MediaPlayback
                 Debug.WriteLine($"Reading media tags: {filePath}");
                 var tagFile = TagLib.File.Create(filePath);
 
-                var title = !string.IsNullOrWhiteSpace(tagFile.Tag.Title)
-                    ? tagFile.Tag.Title
+                var title = !string.IsNullOrWhiteSpace(tagFile.Tag.Title) ? tagFile.Tag.Title
                     : Path.GetFileNameWithoutExtension(filePath);
 
                 var artist = tagFile.Tag.FirstPerformer ?? "Unknown Artist";
@@ -89,6 +97,7 @@ public sealed class MediaPlayback
 
                 string imagePath;
 
+                // Audio files can have embedded artwork
                 if (AudioExtensions.Contains(extension))
                 {
                     imagePath = ExtractEmbeddedArtwork(tagFile, artworkCacheFolder, filePath) ?? FallbackAudioImage;
@@ -117,6 +126,9 @@ public sealed class MediaPlayback
         }
     }
 
+    /// <summary>
+    /// Displays an image or starts playback for the selected media file.
+    /// </summary>
     public void PlaySelected(MediaFile? selectedMedia)
     {
         if (selectedMedia is null)
@@ -137,8 +149,10 @@ public sealed class MediaPlayback
             return;
         }
 
+        // Determine media type by file extension
         var extension = Path.GetExtension(selectedMedia.FilePath).ToLowerInvariant();
 
+        // Images are shown in the right-side viewer
         if (ImageExtensions.Contains(extension))
         {
             _imageViewer.Visibility = Visibility.Visible;
@@ -150,7 +164,8 @@ public sealed class MediaPlayback
                 _player.Stop();
                 _player.Source = null;
                 _imageViewer.Source = new BitmapImage(new Uri(selectedMedia.FilePath, UriKind.Absolute));
-                _nowPlaying.Text = $"Viewing: {selectedMedia.Title ?? Path.GetFileNameWithoutExtension(selectedMedia.FilePath)}";
+                _nowPlaying.Text = $"Viewing: {selectedMedia.Title ?? 
+                                               Path.GetFileNameWithoutExtension(selectedMedia.FilePath)}";
                 MarkAsPlaying(selectedMedia);
                 return;
             }
@@ -170,6 +185,7 @@ public sealed class MediaPlayback
         try
         {
             Debug.WriteLine($"Starting playback: {selectedMedia.FilePath}");
+            // Audio uses cover art; video uses the media element only
             if (AudioExtensions.Contains(extension))
             {
                 _imageViewer.Visibility = Visibility.Visible;
@@ -186,7 +202,8 @@ public sealed class MediaPlayback
             _player.Stop();
             _player.Source = new Uri(selectedMedia.FilePath, UriKind.Absolute);
             _player.Play();
-            _nowPlaying.Text = $"Now playing: {selectedMedia.Title ?? Path.GetFileNameWithoutExtension(selectedMedia.FilePath)}";
+            _nowPlaying.Text = $"Now playing: {selectedMedia.Title ?? 
+                                               Path.GetFileNameWithoutExtension(selectedMedia.FilePath)}";
             MarkAsPlaying(selectedMedia);
         }
         catch (Exception ex)
@@ -195,6 +212,9 @@ public sealed class MediaPlayback
         }
     }
 
+    /// <summary>
+    /// Extracts embedded artwork from a tagged file and writes it to the cache.
+    /// </summary>
     private static string? ExtractEmbeddedArtwork(TagLib.File tagFile, string cacheFolder, string sourceFilePath)
     {
         if (tagFile.Tag.Pictures == null || tagFile.Tag.Pictures.Length == 0)
@@ -223,6 +243,9 @@ public sealed class MediaPlayback
         }
     }
 
+    /// <summary>
+    /// Loads artwork from disk into a BitmapImage for binding.
+    /// </summary>
     private static BitmapImage? LoadArtwork(MediaFile selectedMedia)
     {
         if (string.IsNullOrWhiteSpace(selectedMedia.ImagePath))
@@ -255,10 +278,14 @@ public sealed class MediaPlayback
         }
     }
 
+    /// <summary>
+    /// Updates the IsPlaying flag, keeping only the current item marked as playing.
+    /// </summary>
     private void MarkAsPlaying(MediaFile selectedMedia)
     {
         if (!ReferenceEquals(_currentlyPlaying, selectedMedia))
         {
+            // Clear the previous playing item, then set the new one
             if (_currentlyPlaying is not null)
             {
                 _currentlyPlaying.IsPlaying = false;
