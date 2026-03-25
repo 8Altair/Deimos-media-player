@@ -17,8 +17,8 @@ public sealed class MediaPlayback
     private static readonly string[] ImageExtensions = [".png", ".jpg", ".jpeg", ".gif"];
 
     private const string MediaFolder = @"C:\Users\dinoa\OneDrive\Radna površina\Fakulteto\Treća godina\Drugi semestar\Interakcija čovjek-računar\Vježbe\Media player\Media";
-    private const string FallbackAudioImage = "Assets/Default_cover/Default.png";
-    private const string FallbackVideoImage = "Assets/Default_cover/Default.png";
+    private const string FallbackAudioImage = "pack://application:,,,/Assets/Default_cover/Default.png";
+    private const string FallbackVideoImage = "pack://application:,,,/Assets/Default_cover/Default.png";
 
     private readonly ObservableCollection<MediaFile> _playList;
     private readonly MediaElement _player;
@@ -254,19 +254,25 @@ public sealed class MediaPlayback
             return null;
         }
 
-        if (!File.Exists(selectedMedia.ImagePath))
-        {
-            Debug.WriteLine($"Artwork file not found: {selectedMedia.ImagePath}");
-            return null;
-        }
-
         try
         {
             Debug.WriteLine($"Loading artwork: {selectedMedia.ImagePath}");
+            if (!Uri.TryCreate(selectedMedia.ImagePath, UriKind.RelativeOrAbsolute, out var uri))
+            {
+                Debug.WriteLine($"Artwork path is not a valid URI: {selectedMedia.ImagePath}");
+                return null;
+            }
+
+            if (uri.IsFile && !File.Exists(uri.LocalPath))
+            {
+                Debug.WriteLine($"Artwork file not found: {uri.LocalPath}");
+                return null;
+            }
+
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
             bitmap.CacheOption = BitmapCacheOption.OnLoad;
-            bitmap.UriSource = new Uri(selectedMedia.ImagePath, UriKind.RelativeOrAbsolute);
+            bitmap.UriSource = uri;
             bitmap.EndInit();
 
             return bitmap;
