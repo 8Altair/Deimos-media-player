@@ -22,7 +22,7 @@ public class MediaFile: INotifyPropertyChanged
             if (value != _title)
             {
                 _title = value;
-                OnPropertyChanged(nameof(Title));   // Notify UI that the title changed.
+                OnPropertyChanged(nameof(Title));   // Notify UI that the title changed
             }
         }
     }
@@ -35,7 +35,7 @@ public class MediaFile: INotifyPropertyChanged
             if (value != _filePath)
             {
                 _filePath = value;
-                OnPropertyChanged(nameof(FilePath));    // Notify UI that the file path changed.
+                OnPropertyChanged(nameof(FilePath));    // Notify UI that the file path changed
             }
         }
     }
@@ -48,7 +48,7 @@ public class MediaFile: INotifyPropertyChanged
             if (value != _imagePath)
             {
                 _imagePath = value;
-                OnPropertyChanged(nameof(ImagePath));   // Notify UI that the image path changed.
+                OnPropertyChanged(nameof(ImagePath));   // Notify UI that the image path changed
             }
         }
     }
@@ -61,7 +61,7 @@ public class MediaFile: INotifyPropertyChanged
             if (value != _duration)
             {
                 _duration = value;
-                OnPropertyChanged(nameof(Duration));    // Notify UI that the duration changed.
+                OnPropertyChanged(nameof(Duration));    // Notify UI that the duration changed
             }
         }
     }
@@ -74,7 +74,7 @@ public class MediaFile: INotifyPropertyChanged
             if (_artist != value)
             {
                 _artist = value;
-                OnPropertyChanged(nameof(Artist));  // Notify UI that the artist changed.
+                OnPropertyChanged(nameof(Artist));  // Notify UI that the artist changed
             }
         }
     }
@@ -87,7 +87,7 @@ public class MediaFile: INotifyPropertyChanged
             if (value != _album)
             {
                 _album = value;
-                OnPropertyChanged(nameof(Album));   // Notify UI that the album changed.
+                OnPropertyChanged(nameof(Album));   // Notify UI that the album changed
             }
         }
     }
@@ -100,7 +100,7 @@ public class MediaFile: INotifyPropertyChanged
             if (_isPlaying != value)
             {
                 _isPlaying = value;
-                OnPropertyChanged(nameof(IsPlaying));   // Notify UI that the playback state changed.
+                OnPropertyChanged(nameof(IsPlaying));   // Notify UI that the playback state changed
             }
         }
     }
