@@ -103,11 +103,6 @@ public class MediaFile: INotifyPropertyChanged
             }
         }
     }
-    
-    public MediaFile()
-    {
-        
-    }
 
     public event PropertyChangedEventHandler? PropertyChanged;  // Event required by the INotifyPropertyChanged
 
