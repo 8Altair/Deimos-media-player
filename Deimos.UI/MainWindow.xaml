@@ -139,7 +139,7 @@
                                   VerticalAlignment="Center" HorizontalAlignment="Left">
                                 <TextBlock x:Name="NowPlaying" VerticalAlignment="Center" 
                                            Style="{StaticResource NowPlayingTextBlockStyle}" 
-                                           Text="Now playing:">
+                                           Text="{Binding NowPlayingText}">
                                     <TextBlock.RenderTransform>
                                         <TranslateTransform x:Name="NowPlayingTransform"/>
                                     </TextBlock.RenderTransform>
@@ -210,6 +210,7 @@
                         <!-- Playlist view -->
                         <ListView x:Name="LvPlayList" Grid.Column="0" ItemsSource="{Binding PlayList}"
                                   ItemTemplate="{StaticResource PlaylistItemTemplate}"
+                                  SelectedItem="{Binding SelectedMedia, Mode=TwoWay}"
                                   MouseDoubleClick="PlayList_OnMouseDoubleClick">
                             <ListView.Resources>
                                 <Style TargetType="ScrollBar"  
