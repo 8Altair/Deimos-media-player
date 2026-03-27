@@ -21,16 +21,16 @@ public sealed class MainViewModel : INotifyPropertyChanged
     {
         Debug.WriteLine("MainViewModel initialized.");
         PlayList = new ObservableCollection<MediaFile>();
-        // Playback service handles media scanning and playback logic.
+        // Playback service handles media scanning and playback logic
         var mediaPlayback = new MediaPlayback(PlayList, player, imageViewer, UpdateNowPlayingText);
-        // Command routes the UI action to playback logic.
+        // Command routes the UI action to playback logic
         PlaySelectedCommand = new RelayCommand(_ => mediaPlayback.PlaySelected(SelectedMedia), 
             _ => SelectedMedia is not null);
         mediaPlayback.LoadDefaultMediaFiles();
     }
     
-    public ObservableCollection<MediaFile> PlayList { get; } // Items shown in the playlist
-    public ICommand PlaySelectedCommand { get; } // Command used by the UI to start playback
+    public ObservableCollection<MediaFile> PlayList { get; }    // Items shown in the playlist
+    public ICommand PlaySelectedCommand { get; }    // Command used by the UI to start playback
 
     public MediaFile? SelectedMedia
     {

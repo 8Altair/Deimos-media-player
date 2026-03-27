@@ -12,30 +12,31 @@ namespace Deimos.UI.Services;
 
 public sealed class MediaPlayback
 {
-    private static readonly string[] AudioExtensions = [".mp3", ".flac", ".wav", ".wma", ".m4a"];
-    private static readonly string[] VideoExtensions = [".mp4", ".avi", ".wmv"];
-    private static readonly string[] ImageExtensions = [".png", ".jpg", ".jpeg", ".gif"];
+    private static readonly string[] AudioExtensions = [".mp3", ".flac", ".wav", ".wma", ".m4a"]; // Audio formats
+    private static readonly string[] VideoExtensions = [".mp4", ".avi", ".wmv"]; // Video formats
+    private static readonly string[] ImageExtensions = [".png", ".jpg", ".jpeg", ".gif"]; // Image formats
 
     private const string MediaFolder = @"C:\Users\dinoa\OneDrive\Radna površina\Fakulteto\Treća godina\Drugi semestar\Interakcija čovjek-računar\Vježbe\Media player\Media";
-    private const string FallbackAudioImage = "pack://application:,,,/Assets/Default_cover/Default.png";
-    private const string FallbackVideoImage = "pack://application:,,,/Assets/Default_cover/Default.png";
+    private const string FallbackAudioImage = "pack://application:,,,/Assets/Default_cover/Default.png"; // Default audio art
+    private const string FallbackVideoImage = "pack://application:,,,/Assets/Default_cover/Default.png"; // Default video art
 
-    private readonly ObservableCollection<MediaFile> _playList;
-    private readonly MediaElement _player;
-    private readonly Image _imageViewer;
-    private readonly TextBlock _nowPlaying;
-    private MediaFile? _currentlyPlaying;
+    private readonly ObservableCollection<MediaFile> _playList; // Shared playlist collection
+    private readonly MediaElement _player; // Playback surface
+    private readonly Image _imageViewer; // Artwork or image viewer
+    private readonly Action<string> _updateNowPlaying; // Callback to update UI text
+    private MediaFile? _currentlyPlaying; // Track that is marked as playing
 
     /// <summary>
     /// Initializes playback service with playlist data and target UI controls.
     /// </summary>
     public MediaPlayback(ObservableCollection<MediaFile> playList, MediaElement player, 
-        Image imageViewer, TextBlock nowPlaying)
+        Image imageViewer, Action<string> updateNowPlaying)
     {
         _playList = playList;
         _player = player;
         _imageViewer = imageViewer;
-        _nowPlaying = nowPlaying;
+        _updateNowPlaying = updateNowPlaying;
+        Debug.WriteLine("MediaPlayback initialized");
     }
 
     /// <summary>
@@ -43,6 +44,7 @@ public sealed class MediaPlayback
     /// </summary>
     public void LoadDefaultMediaFiles()
     {
+        Debug.WriteLine("LoadDefaultMediaFiles started");
         if (!Directory.Exists(MediaFolder))
         {
             Debug.WriteLine($"Media folder not found: {MediaFolder}");
@@ -50,13 +52,13 @@ public sealed class MediaPlayback
         }
 
         // Cache folder for extracted cover art
-        var artworkCacheFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ArtworkCache");
+        var artworkCacheFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ArtworkCache"); // Cache location
         Directory.CreateDirectory(artworkCacheFolder);
         Debug.WriteLine($"Loading default media from: {MediaFolder}");
 
         foreach (var filePath in Directory.GetFiles(MediaFolder))
         {
-            var extension = Path.GetExtension(filePath).ToLowerInvariant();
+            var extension = Path.GetExtension(filePath).ToLowerInvariant(); // Normalized extension
 
             // Images are added as viewable items without playback
             if (ImageExtensions.Contains(extension))
@@ -95,7 +97,7 @@ public sealed class MediaPlayback
                 var album = tagFile.Tag.Album ?? "Unknown Album";
                 var duration = tagFile.Properties.Duration;
 
-                string imagePath;
+                string imagePath; // Artwork path
 
                 // Audio files can have embedded artwork
                 if (AudioExtensions.Contains(extension))
@@ -131,6 +133,7 @@ public sealed class MediaPlayback
     /// </summary>
     public void PlaySelected(MediaFile? selectedMedia)
     {
+        Debug.WriteLine($"PlaySelected requested: {selectedMedia?.FilePath ?? "(null)"}");
         if (selectedMedia is null)
         {
             Debug.WriteLine("No playlist item selected for playback.");
@@ -150,22 +153,22 @@ public sealed class MediaPlayback
         }
 
         // Determine media type by file extension
-        var extension = Path.GetExtension(selectedMedia.FilePath).ToLowerInvariant();
+        var extension = Path.GetExtension(selectedMedia.FilePath).ToLowerInvariant(); // Normalized extension
 
         // Images are shown in the right-side viewer
         if (ImageExtensions.Contains(extension))
         {
-            _imageViewer.Visibility = Visibility.Visible;
-            _player.Visibility = Visibility.Collapsed;
+            _imageViewer.Visibility = Visibility.Visible; // Show image pane
+            _player.Visibility = Visibility.Collapsed; // Hide player surface
 
             try
             {
                 Debug.WriteLine($"Showing image: {selectedMedia.FilePath}");
-                _player.Stop();
-                _player.Source = null;
-                _imageViewer.Source = new BitmapImage(new Uri(selectedMedia.FilePath, UriKind.Absolute));
-                _nowPlaying.Text = $"Viewing: {selectedMedia.Title ?? 
-                                               Path.GetFileNameWithoutExtension(selectedMedia.FilePath)}";
+                _player.Stop(); // Stop any previous playback
+                _player.Source = null; // Clear player source
+                _imageViewer.Source = new BitmapImage(new Uri(selectedMedia.FilePath, UriKind.Absolute)); // Load image
+                _updateNowPlaying($"Viewing: {selectedMedia.Title ?? 
+                                               Path.GetFileNameWithoutExtension(selectedMedia.FilePath)}");
                 MarkAsPlaying(selectedMedia);
                 return;
             }
@@ -190,7 +193,7 @@ public sealed class MediaPlayback
             {
                 _imageViewer.Visibility = Visibility.Visible;
                 _player.Visibility = Visibility.Visible;
-                _imageViewer.Source = LoadArtwork(selectedMedia);
+                _imageViewer.Source = LoadArtwork(selectedMedia); // Load cover art
             }
             else
             {
@@ -199,11 +202,12 @@ public sealed class MediaPlayback
                 _imageViewer.Source = null;
             }
 
-            _player.Stop();
-            _player.Source = new Uri(selectedMedia.FilePath, UriKind.Absolute);
-            _player.Play();
-            _nowPlaying.Text = $"Now playing: {selectedMedia.Title ?? 
-                                               Path.GetFileNameWithoutExtension(selectedMedia.FilePath)}";
+            _player.Stop(); // Reset playback before switching
+            _player.Source = new Uri(selectedMedia.FilePath, UriKind.Absolute); // Set media source
+            _player.Play(); // Start playback
+            Debug.WriteLine("Playback started successfully");
+            _updateNowPlaying($"Now playing: {selectedMedia.Title ?? 
+                                               Path.GetFileNameWithoutExtension(selectedMedia.FilePath)}");
             MarkAsPlaying(selectedMedia);
         }
         catch (Exception ex)
@@ -225,13 +229,13 @@ public sealed class MediaPlayback
 
         try
         {
-            var picture = tagFile.Tag.Pictures[0];
-            var imageData = picture.Data.Data;
+            var picture = tagFile.Tag.Pictures[0]; // First embedded image
+            var imageData = picture.Data.Data; // Raw image bytes
 
-            var fileName = Path.GetFileNameWithoutExtension(sourceFilePath) + "_cover.jpg";
-            var outputPath = Path.Combine(cacheFolder, fileName);
+            var fileName = Path.GetFileNameWithoutExtension(sourceFilePath) + "_cover.jpg"; // Cache file name
+            var outputPath = Path.Combine(cacheFolder, fileName); // Full cache path
 
-            File.WriteAllBytes(outputPath, imageData);
+            File.WriteAllBytes(outputPath, imageData); // Write bytes to disk
             Debug.WriteLine($"Extracted embedded artwork to: {outputPath}");
 
             return outputPath;
@@ -269,7 +273,7 @@ public sealed class MediaPlayback
                 return null;
             }
 
-            var bitmap = new BitmapImage();
+            var bitmap = new BitmapImage(); // Bitmap instance for binding
             bitmap.BeginInit();
             bitmap.CacheOption = BitmapCacheOption.OnLoad;
             bitmap.UriSource = uri;
@@ -299,6 +303,7 @@ public sealed class MediaPlayback
 
             selectedMedia.IsPlaying = true;
             _currentlyPlaying = selectedMedia;
+            Debug.WriteLine($"Now marked as playing: {selectedMedia.FilePath}");
         }
     }
 }
