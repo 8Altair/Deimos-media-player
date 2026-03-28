@@ -146,27 +146,40 @@ public sealed class MediaPlayback
             return;
         }
 
-        if (!File.Exists(selectedMedia.FilePath))
+        if (!Uri.TryCreate(selectedMedia.FilePath, UriKind.RelativeOrAbsolute, out var sourceUri))
         {
-            Debug.WriteLine($"Selected file does not exist: {selectedMedia.FilePath}");
+            Debug.WriteLine($"Selected media path is not a valid URI: {selectedMedia.FilePath}");
             return;
         }
 
+        if (!sourceUri.IsAbsoluteUri)
+        {
+            sourceUri = new Uri(Path.GetFullPath(selectedMedia.FilePath));  // Normalize to absolute path
+        }
+
+        if (sourceUri.IsFile && !File.Exists(sourceUri.LocalPath))
+        {
+            Debug.WriteLine($"Selected file does not exist: {sourceUri.LocalPath}");
+            return;
+        }
+
+        Debug.WriteLine($"Resolved media source: {sourceUri}"); // Final source URI
         // Determine media type by file extension
-        var extension = Path.GetExtension(selectedMedia.FilePath).ToLowerInvariant(); // Normalized extension
+        var extension = Path.GetExtension(sourceUri.IsFile ? sourceUri.LocalPath 
+            : selectedMedia.FilePath).ToLowerInvariant();  // Normalized extension
 
         // Images are shown in the right-side viewer
         if (ImageExtensions.Contains(extension))
         {
-            _imageViewer.Visibility = Visibility.Visible; // Show image pane
-            _player.Visibility = Visibility.Collapsed; // Hide player surface
+            _imageViewer.Visibility = Visibility.Visible;   // Show image pane
+            _player.Visibility = Visibility.Collapsed;  // Hide player surface
 
             try
             {
                 Debug.WriteLine($"Showing image: {selectedMedia.FilePath}");
                 _player.Stop(); // Stop any previous playback
                 _player.Source = null; // Clear player source
-                _imageViewer.Source = new BitmapImage(new Uri(selectedMedia.FilePath, UriKind.Absolute)); // Load image
+                _imageViewer.Source = new BitmapImage(sourceUri);   // Load image
                 _updateNowPlaying($"Viewing: {selectedMedia.Title ?? 
                                                Path.GetFileNameWithoutExtension(selectedMedia.FilePath)}");
                 MarkAsPlaying(selectedMedia);
@@ -203,7 +216,7 @@ public sealed class MediaPlayback
             }
 
             _player.Stop(); // Reset playback before switching
-            _player.Source = new Uri(selectedMedia.FilePath, UriKind.Absolute); // Set media source
+            _player.Source = sourceUri; // Set media source
             _player.Play(); // Start playback
             Debug.WriteLine("Playback started successfully");
             _updateNowPlaying($"Now playing: {selectedMedia.Title ?? 

@@ -1,4 +1,4 @@
-using System.Diagnostics;   // Debug.WriteLine for debug output
+using System.Diagnostics;
 using System.Windows.Input; // Mouse button events
 
 using Deimos.UI.ViewModels;
