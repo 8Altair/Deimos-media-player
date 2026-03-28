@@ -183,7 +183,7 @@
                                 <Button x:Name="PlayPause" Grid.Column="1" Style="{StaticResource PlayerIconButtonStyle}" 
                                         ToolTip="Play / Pause" Command="{Binding PlayPauseCommand}">
                                     <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
-                                                    Source="Assets/Icons/Controls/play.svg"/> <!-- Play / pause icon -->
+                                                    Source="{Binding PlayPauseIconPath}"/> <!-- Play / pause icon -->
                                 </Button>
 
                                 <WrapPanel Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center">
