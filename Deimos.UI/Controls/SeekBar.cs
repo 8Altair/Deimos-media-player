@@ -10,9 +10,9 @@ namespace Deimos.UI.Controls;
 public sealed class SeekBar(double minimum = 0, double maximum = 100)
 {
     public bool IsDragging { get; private set; }    // Tracks whether a drag operation is active
-    private double Minimum { get; } = minimum;  // Stores the configured minimum value
-    private double Maximum { get; } = maximum;  // Stores the configured maximum value
-    private double Value { get; set; }  // Stores the current logical value
+    private double Minimum { get; set; } = minimum;  // Stores the configured minimum value
+    private double Maximum { get; set; } = maximum;  // Stores the configured maximum value
+    private double Value { get; set; } = minimum;  // Stores the current logical value
 
     /// <summary>
     /// Marks the beginning of a drag operation.
@@ -49,6 +49,33 @@ public sealed class SeekBar(double minimum = 0, double maximum = 100)
         var ratio = Clamp(mouseX / width);  // Normalize mouse position to a 0-1 range
         Value = Minimum + (Maximum - Minimum) * ratio;  // Convert ratio to a logical value
         return true;    // Signal that the update succeeded
+    }
+
+    /// <summary>
+    /// Updates the configured minimum and maximum range.
+    /// </summary>
+    public void SetRange(double minimum, double maximum)
+    {
+        Minimum = minimum;
+        Maximum = maximum;
+        Value = Math.Max(Minimum, Math.Min(Maximum, Value));
+        Debug.WriteLine($"SeekBar: Range set to {Minimum} - {Maximum}."); // Trace range updates
+    }
+
+    /// <summary>
+    /// Updates the current logical value.
+    /// </summary>
+    public void SetValue(double value)
+    {
+        Value = Math.Max(Minimum, Math.Min(Maximum, value));
+    }
+
+    /// <summary>
+    /// Returns the current logical value.
+    /// </summary>
+    public double GetValue()
+    {
+        return Value;
     }
 
     /// <summary>

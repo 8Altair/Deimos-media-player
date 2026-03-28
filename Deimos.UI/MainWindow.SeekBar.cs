@@ -2,8 +2,10 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 using Deimos.UI.Controls;
+using Deimos.UI.ViewModels;
 
 
 namespace Deimos.UI;
@@ -14,6 +16,14 @@ namespace Deimos.UI;
 public partial class MainWindow
 {
     private readonly SeekBar _seekBar = new();  // Stores seek bar state and calculations
+    private readonly DispatcherTimer _seekBarTimer = new()  // Periodically syncs the seek bar with playback
+    {
+        Interval = TimeSpan.FromMilliseconds(250)
+    };
+    
+    private const double ImageShuffleDurationSeconds = 5; // Duration for shuffled image display
+    private bool _isImageShuffleActive; // Tracks when shuffle image mode is active
+    private DateTime _imageShuffleStart; // Start time for image shuffle progress
 
     /// <summary>
     /// Initializes seek bar behavior after the XAML elements are created.
@@ -21,6 +31,12 @@ public partial class MainWindow
     private void InitializeSeekBarLogic()
     {
         Debug.WriteLine("MainWindow: Initializing seek bar logic.");    // Trace seek bar setup entry
+        Player.MediaOpened += Player_OnMediaOpened;
+        Player.MediaEnded += Player_OnMediaEnded;
+        _seekBarTimer.Tick += SeekBarTimer_OnTick;
+        _viewModel.PropertyChanged += ViewModel_OnPropertyChanged;
+        UpdateTimeLabels(TimeSpan.Zero, TimeSpan.Zero);
+        UpdateSeekBarMode();
         UpdateSeekBarVisual();  // Ensure the visual state matches the logic immediately
     }
 
@@ -63,6 +79,7 @@ public partial class MainWindow
         _seekBar.EndDrag(); // Finalize the drag state
         Debug.WriteLine("MainWindow: Seek bar drag ended.");    // Trace drag end
         UpdateSeekBarFromMouse(e.GetPosition(SeekBar).X);   // Apply the last mouse position
+        UpdatePlayerFromSeekBar(); // Apply the seek position to the media element
         SeekBar.ReleaseMouseCapture();  // Restore normal mouse routing to other controls
     }
 
@@ -87,6 +104,153 @@ public partial class MainWindow
             return; // Avoid divide-by-zero and invalid math
 
         UpdateSeekBarVisual();  // Redraw the progress and thumb after a valid update
+    }
+
+    /// <summary>
+    /// Updates the seek bar value from the media element position.
+    /// </summary>
+    private void UpdateSeekBarFromPlayer()
+    {
+        if (_isImageShuffleActive)
+            return;
+
+        if (_seekBar.IsDragging) // Avoid snapping while the user is dragging
+            return;
+
+        var naturalDuration = Player.NaturalDuration;
+        if (Player.Source is null || !naturalDuration.HasTimeSpan)
+        {
+            _seekBar.SetValue(0);
+            UpdateTimeLabels(TimeSpan.Zero, TimeSpan.Zero);
+            UpdateSeekBarVisual();
+            _seekBarTimer.Stop();
+            return;
+        }
+
+        _seekBar.SetValue(Player.Position.TotalSeconds);
+        UpdateTimeLabels(Player.Position, naturalDuration.TimeSpan);
+        UpdateSeekBarVisual();
+    }
+
+    /// <summary>
+    /// Applies the seek bar value to the media element.
+    /// </summary>
+    private void UpdatePlayerFromSeekBar()
+    {
+        if (_isImageShuffleActive)
+        {
+            var imageSeconds = _seekBar.GetValue();
+            _imageShuffleStart = DateTime.UtcNow - TimeSpan.FromSeconds(imageSeconds);
+            _viewModel.RescheduleShuffleImageAdvance(imageSeconds);
+            UpdateTimeLabels(TimeSpan.FromSeconds(imageSeconds), TimeSpan.FromSeconds(ImageShuffleDurationSeconds));
+            return;
+        }
+
+        var naturalDuration = Player.NaturalDuration;
+        if (Player.Source is null || !naturalDuration.HasTimeSpan)
+            return;
+
+        var mediaSeconds = _seekBar.GetValue();
+        Player.Position = TimeSpan.FromSeconds(mediaSeconds);
+        Debug.WriteLine($"MainWindow: Player position updated to {Player.Position}.");
+        UpdateTimeLabels(Player.Position, naturalDuration.TimeSpan);
+    }
+
+    private void Player_OnMediaOpened(object? sender, RoutedEventArgs e)
+    {
+        if (!Player.NaturalDuration.HasTimeSpan)
+        {
+            _seekBar.SetRange(0, 1);
+            _seekBar.SetValue(0);
+            UpdateTimeLabels(TimeSpan.Zero, TimeSpan.Zero);
+            UpdateSeekBarVisual();
+            _seekBarTimer.Stop();
+            UpdateSeekBarMode();
+            return;
+        }
+
+        var durationSeconds = Player.NaturalDuration.TimeSpan.TotalSeconds;
+        _seekBar.SetRange(0, durationSeconds);
+        _seekBar.SetValue(0);
+        UpdateTimeLabels(TimeSpan.Zero, Player.NaturalDuration.TimeSpan);
+        UpdateSeekBarVisual();
+        _seekBarTimer.Start();
+        UpdateSeekBarMode();
+        Debug.WriteLine($"MainWindow: Seek bar range set to {durationSeconds} seconds.");
+    }
+
+    private void Player_OnMediaEnded(object? sender, RoutedEventArgs e)
+    {
+        _seekBar.SetValue(0);
+        UpdateTimeLabels(TimeSpan.Zero, Player.NaturalDuration.HasTimeSpan ? Player.NaturalDuration.TimeSpan : TimeSpan.Zero);
+        UpdateSeekBarVisual();
+        UpdateSeekBarMode();
+        _viewModel.NotifyPlaybackEnded();
+        _viewModel.HandleMediaEnded();
+        Debug.WriteLine("MainWindow: Media ended, seek bar reset.");
+    }
+
+    private void SeekBarTimer_OnTick(object? sender, EventArgs e)
+    {
+        if (_isImageShuffleActive)
+        {
+            UpdateSeekBarForImageShuffle();
+            return;
+        }
+
+        UpdateSeekBarFromPlayer();
+    }
+
+    private void ViewModel_OnPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(MainViewModel.SelectedMedia) or nameof(MainViewModel.IsShuffleEnabled)
+            or nameof(MainViewModel.IsShuffleImageActive))
+        {
+            UpdateSeekBarMode();
+        }
+    }
+
+    private void UpdateSeekBarMode()
+    {
+        var shuffleImageActive = _viewModel.IsShuffleImageActive;
+        if (shuffleImageActive)
+        {
+            _isImageShuffleActive = true;
+            _imageShuffleStart = DateTime.UtcNow;
+            _seekBar.SetRange(0, ImageShuffleDurationSeconds);
+            _seekBar.SetValue(0);
+            UpdateTimeLabels(TimeSpan.Zero, TimeSpan.FromSeconds(ImageShuffleDurationSeconds));
+            UpdateSeekBarVisual();
+            _seekBarTimer.Start();
+        }
+        else
+        {
+            _isImageShuffleActive = false;
+            if (Player.Source is null || !Player.NaturalDuration.HasTimeSpan)
+            {
+                _seekBar.SetRange(0, 1);
+                _seekBar.SetValue(0);
+                UpdateTimeLabels(TimeSpan.Zero, TimeSpan.Zero);
+                UpdateSeekBarVisual();
+            }
+        }
+
+        SeekBar.IsHitTestVisible = _isImageShuffleActive || (Player.Source is not null && Player.NaturalDuration.HasTimeSpan);
+    }
+
+    private void UpdateSeekBarForImageShuffle()
+    {
+        var elapsedSeconds = (DateTime.UtcNow - _imageShuffleStart).TotalSeconds;
+        elapsedSeconds = Math.Max(0, Math.Min(ImageShuffleDurationSeconds, elapsedSeconds));
+        _seekBar.SetValue(elapsedSeconds);
+        UpdateTimeLabels(TimeSpan.FromSeconds(elapsedSeconds), TimeSpan.FromSeconds(ImageShuffleDurationSeconds));
+        UpdateSeekBarVisual();
+    }
+
+    private void UpdateTimeLabels(TimeSpan current, TimeSpan total)
+    {
+        CurrentTimeLabel.Content = current.ToString(@"hh\:mm\:ss");
+        TotalTimeLabel.Content = total.ToString(@"hh\:mm\:ss");
     }
 
     /// <summary>

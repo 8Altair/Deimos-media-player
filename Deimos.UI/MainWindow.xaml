@@ -16,6 +16,10 @@
         WindowStyle="None"
         ResizeMode="CanResize"
         AllowsTransparency="False">
+    
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+    </Window.Resources>
 
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="0" ResizeBorderThickness="6" CornerRadius="0" 
@@ -81,12 +85,12 @@
                     </MenuItem>
 
                     <MenuItem Header="_List"> <!-- Playlist management menu -->
-                        <MenuItem Header="Add static"/>
-                        <MenuItem Header="Edit static"/>
+                        <MenuItem Header="Add static" Command="{Binding AddStaticCommand}"/>
+                        <MenuItem Header="Edit static" Command="{Binding EditStaticCommand}"/>
                         <Separator/> <!-- Visual separation between static and dynamic options -->
                         <MenuItem Header="Add"/>
                         <MenuItem Header="Edit"/>
-                        <MenuItem Header="Remove"/>
+                        <MenuItem Header="Remove" Command="{Binding RemoveSelectedCommand}"/>
                     </MenuItem>
                 </Menu>
 
@@ -110,7 +114,7 @@
                                 <ColumnDefinition Width="Auto"/> <!-- Total time -->
                             </Grid.ColumnDefinitions>
 
-                            <Label Grid.Column="0" Content="00:00:00"/> <!-- Current playback time -->
+                            <Label x:Name="CurrentTimeLabel" Grid.Column="0" Content="00:00:00"/> <!-- Current playback time -->
 
                             <!-- Playback seek control -->
                             <Grid x:Name="SeekBar" Grid.Column="2" Height="22" Background="Transparent" 
@@ -129,7 +133,7 @@
                                 </Canvas>
                             </Grid>
 
-                            <Label Grid.Column="4" Content="00:00:00"/> <!-- Total playback time -->
+                            <Label x:Name="TotalTimeLabel" Grid.Column="4" Content="00:00:00"/> <!-- Total playback time -->
                         </Grid>
 
                         <!-- Now playing and transport controls -->
@@ -139,7 +143,7 @@
                                   VerticalAlignment="Center" HorizontalAlignment="Left">
                                 <TextBlock x:Name="NowPlaying" VerticalAlignment="Center" 
                                            Style="{StaticResource NowPlayingTextBlockStyle}" 
-                                           Text="Now playing:">
+                                           Text="{Binding NowPlayingText}">
                                     <TextBlock.RenderTransform>
                                         <TranslateTransform x:Name="NowPlayingTransform"/>
                                     </TextBlock.RenderTransform>
@@ -155,43 +159,47 @@
                                 </Grid.ColumnDefinitions>
 
                                 <WrapPanel Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                    <Button x:Name="Shuffle" Style="{StaticResource SmallPlayerIconButtonStyle}" 
-                                            ToolTip="Shuffle">
+                                    <Button x:Name="Shuffle" Style="{StaticResource ShuffleToggleButtonStyle}" 
+                                            ToolTip="Shuffle" Command="{Binding ShuffleCommand}">
                                         <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
                                                         Source="Assets/Icons/Controls/shuffle.svg"/> <!-- Shuffle icon -->
                                     </Button>
 
-                                    <Button x:Name="Repeat" Style="{StaticResource SmallPlayerIconButtonStyle}" 
-                                            ToolTip="Repeat">
+                                    <Button x:Name="Repeat" Style="{StaticResource RepeatToggleButtonStyle}" 
+                                            ToolTip="Repeat" Command="{Binding RepeatCommand}">
                                         <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
                                                         Source="Assets/Icons/Controls/repeat.svg"/> <!-- Repeat icon -->
                                     </Button>
 
                                     <Button x:Name="Stop" Style="{StaticResource SmallPlayerIconButtonStyle}" 
-                                            ToolTip="Stop">
+                                            ToolTip="Stop" Command="{Binding StopCommand}">
                                         <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
                                                         Source="Assets/Icons/Controls/stop.svg"/> <!-- Stop icon -->
                                     </Button>
 
                                     <Button x:Name="Previous" Style="{StaticResource PlayerIconButtonStyle}" 
-                                            ToolTip="Previous">
+                                            ToolTip="Previous" Command="{Binding PreviousCommand}">
                                         <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
                                                         Source="Assets/Icons/Controls/previous.svg"/> <!-- Previous icon -->
                                     </Button>
                                 </WrapPanel>
 
                                 <Button x:Name="PlayPause" Grid.Column="1" Style="{StaticResource PlayerIconButtonStyle}" 
-                                        ToolTip="Play / Pause">
+                                        ToolTip="Play / Pause" Command="{Binding PlayPauseCommand}">
                                     <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
-                                                    Source="Assets/Icons/Controls/play.svg"/> <!-- Play / pause icon -->
+                                                    Source="{Binding PlayPauseIconPath}"/> <!-- Play / pause icon -->
                                 </Button>
 
                                 <WrapPanel Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center">
                                     <Button x:Name="Next" Style="{StaticResource PlayerIconButtonStyle}" 
-                                            ToolTip="Next">
+                                            ToolTip="Next" Command="{Binding NextCommand}">
                                         <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
                                                         Source="Assets/Icons/Controls/next.svg"/> <!-- Next icon -->
                                     </Button>
+
+                                    <Slider Width="90" Height="22" Margin="8,0,0,0"
+                                            Minimum="0" Maximum="1" Value="{Binding Volume, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            IsMoveToPointEnabled="True" ToolTip="Volume"/>
                                 </WrapPanel>
                             </Grid>
                         </Grid>
@@ -210,6 +218,7 @@
                         <!-- Playlist view -->
                         <ListView x:Name="LvPlayList" Grid.Column="0" ItemsSource="{Binding PlayList}"
                                   ItemTemplate="{StaticResource PlaylistItemTemplate}"
+                                  SelectedItem="{Binding SelectedMedia, Mode=TwoWay}"
                                   MouseDoubleClick="PlayList_OnMouseDoubleClick">
                             <ListView.Resources>
                                 <Style TargetType="ScrollBar"  
@@ -231,7 +240,10 @@
                                 BorderThickness="1" CornerRadius="4">
                             <Grid>
                                 <MediaElement x:Name="Player" LoadedBehavior="Manual" UnloadedBehavior="Manual"/> <!-- Main playback surface -->
-                                <Image x:Name="ImageViewer" Visibility="Collapsed" Stretch="Uniform"/>
+                                <Image x:Name="ImageViewer"
+                                       Source="{Binding CurrentPlayingMedia.ImagePath}"
+                                       Visibility="{Binding IsImagePreviewVisible, Converter={StaticResource BoolToVisibility}}"
+                                       Stretch="Uniform"/>
                             </Grid>
                         </Border>
                     </Grid>
