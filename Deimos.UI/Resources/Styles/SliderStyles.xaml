@@ -1,0 +1,45 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Brushes.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    <ControlTemplate x:Key="SliderThumbTemplate" TargetType="Thumb">
+        <Border Width="16" Height="16" CornerRadius="8"
+                Background="{StaticResource AccentBrush}"
+                BorderBrush="White" BorderThickness="1"/>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="SliderRepeatButtonTemplate" TargetType="RepeatButton">
+        <Border Height="8" CornerRadius="4" Background="{TemplateBinding Background}"
+                IsHitTestVisible="False"/>
+    </ControlTemplate>
+
+    <Style TargetType="Slider">
+        <Setter Property="Height" Value="22"/>
+        <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+        <Setter Property="Background" Value="{StaticResource DarkTrackBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Slider">
+                    <Grid VerticalAlignment="Center" Background="Transparent">
+                        <Track x:Name="PART_Track">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton IsHitTestVisible="False" Focusable="False"
+                                              Background="{TemplateBinding Foreground}"
+                                              Template="{StaticResource SliderRepeatButtonTemplate}"/>
+                            </Track.DecreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb Template="{StaticResource SliderThumbTemplate}"/>
+                            </Track.Thumb>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton IsHitTestVisible="False" Focusable="False"
+                                              Background="{TemplateBinding Background}"
+                                              Template="{StaticResource SliderRepeatButtonTemplate}"/>
+                            </Track.IncreaseRepeatButton>
+                        </Track>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>
