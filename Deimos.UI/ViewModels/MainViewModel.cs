@@ -16,14 +16,17 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private const string StaticImageUri = "pack://application:,,,/Assets/Default_cover/Default.png";    // Default image resource
     private const double ShuffleImageDurationSeconds = 5; // Shuffle image display length
     private static readonly string[] ImageExtensions = [".png", ".jpg", ".jpeg", ".gif"]; // Image formats for shuffle preview
+    private static readonly string[] VideoExtensions = [".mp4", ".avi", ".wmv"]; // Video formats for preview visibility
     private readonly MediaPlayback _mediaPlayback;  // Playback service instance
     private readonly Random _random = new();    // Shuffle source
     private readonly DispatcherTimer _shuffleImageTimer = new() { Interval = TimeSpan.FromSeconds(ShuffleImageDurationSeconds) }; // Auto-advance timer for images
     private readonly List<int> _shuffleOrder = new(); // Stores the shuffled playlist order
     private int _shufflePosition = -1; // Current index within the shuffle order
     private MediaFile? _selectedMedia;  // Currently selected playlist item
+    private MediaFile? _currentPlayingMedia; // Currently playing media item
     private string _nowPlayingText = "Now playing:";    // Text shown in the UI label
     private bool _isPlaying; // Tracks current playback state
+    private bool _isImagePreviewVisible; // Controls preview visibility
     private double _volume = 0.5; // Default volume level
     private bool _isShuffleEnabled; // Shuffle toggle state
     private bool _isRepeatEnabled;  // Repeat toggle state
@@ -31,12 +34,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
     /// <summary>
     /// Initializes the view model, playlist, and playback wiring.
     /// </summary>
-    public MainViewModel(MediaElement player, Image imageViewer)
+    public MainViewModel(MediaElement player)
     {
         Debug.WriteLine("MainViewModel initialized.");
         PlayList = new ObservableCollection<MediaFile>();
         // Playback service handles media scanning and playback logic
-        _mediaPlayback = new MediaPlayback(PlayList, player, imageViewer, UpdateNowPlayingText);
+        _mediaPlayback = new MediaPlayback(PlayList, player, UpdateNowPlayingText);
         // Command routes the UI action to playback logic
         PlaySelectedCommand = new RelayCommand(_ => PlaySelectedFromUi(), 
             _ => SelectedMedia is not null);
@@ -97,7 +100,6 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 _selectedMedia = value;
                 Debug.WriteLine($"Selected media changed: {_selectedMedia}");
                 OnPropertyChanged(nameof(SelectedMedia));
-                OnPropertyChanged(nameof(IsShuffleImageActive));
                 // Refresh command availability when selection changes
                 PlaySelectedCommand.RaiseCanExecuteChanged();
                 PlayPauseCommand.RaiseCanExecuteChanged();
@@ -108,6 +110,22 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 EditStaticCommand.RaiseCanExecuteChanged();
                 if (IsShuffleEnabled)
                     SyncShufflePosition(CurrentIndex);
+            }
+        }
+    }
+
+    public MediaFile? CurrentPlayingMedia
+    {
+        get => _currentPlayingMedia;
+        private set
+        {
+            if (!ReferenceEquals(_currentPlayingMedia, value))
+            {
+                _currentPlayingMedia = value;
+                Debug.WriteLine($"Current playing media set: {_currentPlayingMedia}");
+                OnPropertyChanged(nameof(CurrentPlayingMedia));
+                OnPropertyChanged(nameof(IsShuffleImageActive));
+                UpdatePreviewVisibility();
                 ScheduleImageAdvanceIfNeeded();
             }
         }
@@ -163,7 +181,20 @@ public sealed class MainViewModel : INotifyPropertyChanged
         }
     }
 
-    public bool IsShuffleImageActive => IsShuffleEnabled && SelectedMedia is not null && IsImageMedia(SelectedMedia);
+    public bool IsShuffleImageActive => IsShuffleEnabled && CurrentPlayingMedia is not null && IsImageMedia(CurrentPlayingMedia);
+
+    public bool IsImagePreviewVisible
+    {
+        get => _isImagePreviewVisible;
+        private set
+        {
+            if (_isImagePreviewVisible != value)
+            {
+                _isImagePreviewVisible = value;
+                OnPropertyChanged(nameof(IsImagePreviewVisible));
+            }
+        }
+    }
 
     public bool IsPlaying
     {
@@ -206,9 +237,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     private void PlaySelectedFromUi()
     {
+        CurrentPlayingMedia = SelectedMedia;
         _mediaPlayback.PlaySelected(SelectedMedia);
         SyncPlaybackState();
-        ScheduleImageAdvanceIfNeeded();
     }
 
     /// <summary>
@@ -229,9 +260,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
             return;
         }
 
+        CurrentPlayingMedia = SelectedMedia;
         _mediaPlayback.PlayOrResume(SelectedMedia);
         SyncPlaybackState();
-        ScheduleImageAdvanceIfNeeded();
     }
 
     /// <summary>
@@ -240,6 +271,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private void StopPlayback()
     {
         _mediaPlayback.Stop();
+        CurrentPlayingMedia = null;
         SyncPlaybackState();
         StopImageAdvanceTimer();
     }
@@ -480,14 +512,14 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     private void StartPlaybackForSelection()
     {
+        CurrentPlayingMedia = SelectedMedia;
         _mediaPlayback.PlaySelected(SelectedMedia);
         SyncPlaybackState();
-        ScheduleImageAdvanceIfNeeded();
     }
 
     private void ScheduleImageAdvanceIfNeeded()
     {
-        if (!IsShuffleEnabled || SelectedMedia is null || !IsImageMedia(SelectedMedia))
+        if (!IsShuffleEnabled || CurrentPlayingMedia is null || !IsImageMedia(CurrentPlayingMedia))
         {
             StopImageAdvanceTimer();
             return;
@@ -511,7 +543,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private void ShuffleImageTimer_OnTick(object? sender, EventArgs e)
     {
         _shuffleImageTimer.Stop();
-        if (!IsShuffleEnabled || SelectedMedia is null || !IsImageMedia(SelectedMedia))
+        if (!IsShuffleEnabled || CurrentPlayingMedia is null || !IsImageMedia(CurrentPlayingMedia))
             return;
 
         Debug.WriteLine("Shuffle image timeout reached, advancing.");
@@ -534,6 +566,23 @@ public sealed class MainViewModel : INotifyPropertyChanged
     {
         var extension = GetExtension(mediaFile.FilePath ?? mediaFile.ImagePath);
         return ImageExtensions.Contains(extension);
+    }
+
+    private static bool IsVideoMedia(MediaFile mediaFile)
+    {
+        var extension = GetExtension(mediaFile.FilePath ?? mediaFile.ImagePath);
+        return VideoExtensions.Contains(extension);
+    }
+
+    private void UpdatePreviewVisibility()
+    {
+        if (CurrentPlayingMedia is null)
+        {
+            IsImagePreviewVisible = false;
+            return;
+        }
+
+        IsImagePreviewVisible = !IsVideoMedia(CurrentPlayingMedia);
     }
 
     private static string GetExtension(string? path)

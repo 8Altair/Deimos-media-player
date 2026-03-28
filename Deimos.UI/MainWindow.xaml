@@ -16,6 +16,10 @@
         WindowStyle="None"
         ResizeMode="CanResize"
         AllowsTransparency="False">
+    
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+    </Window.Resources>
 
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="0" ResizeBorderThickness="6" CornerRadius="0" 
@@ -236,7 +240,10 @@
                                 BorderThickness="1" CornerRadius="4">
                             <Grid>
                                 <MediaElement x:Name="Player" LoadedBehavior="Manual" UnloadedBehavior="Manual"/> <!-- Main playback surface -->
-                                <Image x:Name="ImageViewer" Visibility="Collapsed" Stretch="Uniform"/>
+                                <Image x:Name="ImageViewer"
+                                       Source="{Binding CurrentPlayingMedia.ImagePath}"
+                                       Visibility="{Binding IsImagePreviewVisible, Converter={StaticResource BoolToVisibility}}"
+                                       Stretch="Uniform"/>
                             </Grid>
                         </Border>
                     </Grid>
