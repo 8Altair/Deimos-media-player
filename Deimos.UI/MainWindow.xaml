@@ -86,7 +86,7 @@
                         <Separator/> <!-- Visual separation between static and dynamic options -->
                         <MenuItem Header="Add"/>
                         <MenuItem Header="Edit"/>
-                        <MenuItem Header="Remove"/>
+                        <MenuItem Header="Remove" Command="{Binding RemoveSelectedCommand}"/>
                     </MenuItem>
                 </Menu>
 

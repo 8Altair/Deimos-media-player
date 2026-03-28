@@ -12,8 +12,8 @@ namespace Deimos.UI.ViewModels;
 public sealed class MainViewModel : INotifyPropertyChanged
 {
     private const string StaticImageUri = "pack://application:,,,/Assets/Default_cover/Default.png";    // Default image resource
-    private MediaFile? _selectedMedia; // Currently selected playlist item
-    private string _nowPlayingText = "Now playing:"; // Text shown in the UI label
+    private MediaFile? _selectedMedia;  // Currently selected playlist item
+    private string _nowPlayingText = "Now playing:";    // Text shown in the UI label
     
     /// <summary>
     /// Initializes the view model, playlist, and playback wiring.
@@ -28,13 +28,16 @@ public sealed class MainViewModel : INotifyPropertyChanged
         PlaySelectedCommand = new RelayCommand(_ => mediaPlayback.PlaySelected(SelectedMedia), 
             _ => SelectedMedia is not null);
         AddStaticCommand = new RelayCommand(_ => AddStaticItem());  // Adds a predefined item
-        _ = AddStaticCommand; // Touch getter for analyzers that don't see XAML bindings
+        _ = AddStaticCommand;   // Touch getter for analyzers that don't see XAML bindings
+        RemoveSelectedCommand = new RelayCommand(_ => RemoveSelectedItem(), _ => SelectedMedia is not null);  // Remove a selected item
+        _ = RemoveSelectedCommand;
         mediaPlayback.LoadDefaultMediaFiles();
     }
     
     public ObservableCollection<MediaFile> PlayList { get; }    // Items shown in the playlist
     public RelayCommand PlaySelectedCommand { get; }    // Command used by the UI to start playback
     public RelayCommand AddStaticCommand { get; }    // Command used to add a static item
+    public RelayCommand RemoveSelectedCommand { get; }    // Command used to remove a selected item
 
     public MediaFile? SelectedMedia
     {
@@ -46,8 +49,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 _selectedMedia = value;
                 Debug.WriteLine($"Selected media changed: {_selectedMedia}");
                 OnPropertyChanged(nameof(SelectedMedia));
-                // Refresh command availability when selection changes.
+                // Refresh command availability when selection changes
                 PlaySelectedCommand.RaiseCanExecuteChanged();
+                RemoveSelectedCommand.RaiseCanExecuteChanged();
             }
         }
     }
@@ -94,6 +98,20 @@ public sealed class MainViewModel : INotifyPropertyChanged
         Debug.WriteLine($"Default image added: {staticItem.Title}");
     }
     
+    private void RemoveSelectedItem()
+    {
+        if (SelectedMedia is null)
+        {
+            Debug.WriteLine("RemoveSelectedItem skipped: no selection");
+            return;
+        }
+
+        var removedTitle = SelectedMedia.Title ?? "(Untitled)";
+        PlayList.Remove(SelectedMedia);
+        Debug.WriteLine($"Removed selected item: {removedTitle}");
+        SelectedMedia = null;
+    }
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
