@@ -17,12 +17,10 @@ public partial class MainWindow    // Connects partial logic from xaml file and 
     {
         InitializeComponent();  // Builds and connects the XAML UI components to this class
         InitializeWindowChrome();
-        InitializeSeekBarLogic();
-
         _viewModel = new MainViewModel(Player, ImageViewer); // Wire VM to playback controls
-        InitializeNowPlayingScroll(); // Enable title scrolling
-
         DataContext = _viewModel; // Bind UI to view model
+        InitializeSeekBarLogic();
+        InitializeNowPlayingScroll(); // Enable title scrolling
     }
 
     private void PlayList_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)

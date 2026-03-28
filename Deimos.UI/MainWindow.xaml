@@ -110,7 +110,7 @@
                                 <ColumnDefinition Width="Auto"/> <!-- Total time -->
                             </Grid.ColumnDefinitions>
 
-                            <Label Grid.Column="0" Content="00:00:00"/> <!-- Current playback time -->
+                            <Label x:Name="CurrentTimeLabel" Grid.Column="0" Content="00:00:00"/> <!-- Current playback time -->
 
                             <!-- Playback seek control -->
                             <Grid x:Name="SeekBar" Grid.Column="2" Height="22" Background="Transparent" 
@@ -129,7 +129,7 @@
                                 </Canvas>
                             </Grid>
 
-                            <Label Grid.Column="4" Content="00:00:00"/> <!-- Total playback time -->
+                            <Label x:Name="TotalTimeLabel" Grid.Column="4" Content="00:00:00"/> <!-- Total playback time -->
                         </Grid>
 
                         <!-- Now playing and transport controls -->
@@ -155,13 +155,13 @@
                                 </Grid.ColumnDefinitions>
 
                                 <WrapPanel Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                    <Button x:Name="Shuffle" Style="{StaticResource ShuffleToggleButtonStyle}"
+                                    <Button x:Name="Shuffle" Style="{StaticResource ShuffleToggleButtonStyle}" 
                                             ToolTip="Shuffle" Command="{Binding ShuffleCommand}">
                                         <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
                                                         Source="Assets/Icons/Controls/shuffle.svg"/> <!-- Shuffle icon -->
                                     </Button>
 
-                                    <Button x:Name="Repeat" Style="{StaticResource RepeatToggleButtonStyle}"
+                                    <Button x:Name="Repeat" Style="{StaticResource RepeatToggleButtonStyle}" 
                                             ToolTip="Repeat" Command="{Binding RepeatCommand}">
                                         <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
                                                         Source="Assets/Icons/Controls/repeat.svg"/> <!-- Repeat icon -->
