@@ -154,7 +154,7 @@ public sealed class MediaPlayback
 
         if (!sourceUri.IsAbsoluteUri)
         {
-            sourceUri = new Uri(Path.GetFullPath(selectedMedia.FilePath));  // Normalize to absolute path
+            sourceUri = new Uri(Path.GetFullPath(selectedMedia.FilePath)); // Normalize to absolute path
         }
 
         if (sourceUri.IsFile && !File.Exists(sourceUri.LocalPath))
@@ -165,13 +165,13 @@ public sealed class MediaPlayback
 
         Debug.WriteLine($"Resolved media source: {sourceUri}"); // Final source URI
         // Determine media type by file extension
-        var extension = Path.GetExtension(sourceUri.IsFile ? sourceUri.LocalPath 
-            : selectedMedia.FilePath).ToLowerInvariant();  // Normalized extension
+        var extension = Path.GetExtension(sourceUri.IsFile ? sourceUri.LocalPath
+            : selectedMedia.FilePath).ToLowerInvariant(); // Normalized extension
 
         // Images are shown in the right-side viewer
         if (ImageExtensions.Contains(extension))
         {
-            _player.Visibility = Visibility.Collapsed;  // Hide player surface
+            _player.Visibility = Visibility.Collapsed; // Hide player surface
 
             try
             {
@@ -265,7 +265,8 @@ public sealed class MediaPlayback
         _isPlaying = false;
         if (_currentlyPlaying is not null)
         {
-            _updateNowPlaying($"Paused: {_currentlyPlaying.Title ?? Path.GetFileNameWithoutExtension(_currentlyPlaying.FilePath)}");
+            _updateNowPlaying($"Paused: {_currentlyPlaying.Title ?? 
+                                         Path.GetFileNameWithoutExtension(_currentlyPlaying.FilePath)}");
         }
     }
 
@@ -285,7 +286,8 @@ public sealed class MediaPlayback
         _isPlaying = false;
         if (_currentlyPlaying is not null)
         {
-            _updateNowPlaying($"Stopped: {_currentlyPlaying.Title ?? Path.GetFileNameWithoutExtension(_currentlyPlaying.FilePath)}");
+            _updateNowPlaying($"Stopped: {_currentlyPlaying.Title ?? 
+                                          Path.GetFileNameWithoutExtension(_currentlyPlaying.FilePath)}");
         }
     }
 

@@ -198,7 +198,8 @@
                                     </Button>
 
                                     <Slider Width="90" Height="22" Margin="8,0,0,0"
-                                            Minimum="0" Maximum="1" Value="{Binding Volume, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            Minimum="0" Maximum="1" Value="{Binding Volume, Mode=TwoWay, 
+                                            UpdateSourceTrigger=PropertyChanged}" 
                                             IsMoveToPointEnabled="True" ToolTip="Volume"/>
                                 </WrapPanel>
                             </Grid>
@@ -242,8 +243,8 @@
                                 <MediaElement x:Name="Player" LoadedBehavior="Manual" UnloadedBehavior="Manual"/> <!-- Main playback surface -->
                                 <Image x:Name="ImageViewer"
                                        Source="{Binding CurrentPlayingMedia.ImagePath}"
-                                       Visibility="{Binding IsImagePreviewVisible, Converter={StaticResource BoolToVisibility}}"
-                                       Stretch="Uniform"/>
+                                       Visibility="{Binding IsImagePreviewVisible, 
+                                       Converter={StaticResource BoolToVisibility}}" Stretch="Uniform"/>
                             </Grid>
                         </Border>
                     </Grid>
