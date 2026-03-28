@@ -31,6 +31,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _ = AddStaticCommand;   // Touch getter for analyzers that don't see XAML bindings
         RemoveSelectedCommand = new RelayCommand(_ => RemoveSelectedItem(), _ => SelectedMedia is not null);  // Remove a selected item
         _ = RemoveSelectedCommand;
+        EditStaticCommand = new RelayCommand(_ => EditStaticItem(), _ => SelectedMedia is not null);  // Edit a selected item
+        _ = EditStaticCommand;
         mediaPlayback.LoadDefaultMediaFiles();
     }
     
@@ -38,6 +40,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public RelayCommand PlaySelectedCommand { get; }    // Command used by the UI to start playback
     public RelayCommand AddStaticCommand { get; }    // Command used to add a static item
     public RelayCommand RemoveSelectedCommand { get; }    // Command used to remove a selected item
+    public RelayCommand EditStaticCommand { get; }    // Command used to edit a selected item
 
     public MediaFile? SelectedMedia
     {
@@ -52,6 +55,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 // Refresh command availability when selection changes
                 PlaySelectedCommand.RaiseCanExecuteChanged();
                 RemoveSelectedCommand.RaiseCanExecuteChanged();
+                EditStaticCommand.RaiseCanExecuteChanged();
             }
         }
     }
@@ -110,6 +114,18 @@ public sealed class MainViewModel : INotifyPropertyChanged
         PlayList.Remove(SelectedMedia);
         Debug.WriteLine($"Removed selected item: {removedTitle}");
         SelectedMedia = null;
+    }
+
+    private void EditStaticItem()
+    {
+        if (SelectedMedia is null)
+        {
+            Debug.WriteLine("EditStaticItem skipped: no selection");
+            return;
+        }
+
+        SelectedMedia.Title = "Edited static title";
+        Debug.WriteLine($"Static title applied: {SelectedMedia.Title}");
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

@@ -82,7 +82,7 @@
 
                     <MenuItem Header="_List"> <!-- Playlist management menu -->
                         <MenuItem Header="Add static" Command="{Binding AddStaticCommand}"/>
-                        <MenuItem Header="Edit static"/>
+                        <MenuItem Header="Edit static" Command="{Binding EditStaticCommand}"/>
                         <Separator/> <!-- Visual separation between static and dynamic options -->
                         <MenuItem Header="Add"/>
                         <MenuItem Header="Edit"/>
