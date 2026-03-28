@@ -42,6 +42,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public RelayCommand RemoveSelectedCommand { get; }    // Command used to remove a selected item
     public RelayCommand EditStaticCommand { get; }    // Command used to edit a selected item
 
+    /// <summary>
+    /// Gets or sets the currently selected media item.
+    /// </summary>
     public MediaFile? SelectedMedia
     {
         get => _selectedMedia;
@@ -60,6 +63,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Gets the text shown in the now playing label.
+    /// </summary>
     public string NowPlayingText
     {
         get => _nowPlayingText;
@@ -102,6 +108,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
         Debug.WriteLine($"Default image added: {staticItem.Title}");
     }
     
+    /// <summary>
+    /// Removes the currently selected media item from the playlist.
+    /// </summary>
     private void RemoveSelectedItem()
     {
         if (SelectedMedia is null)
@@ -116,6 +125,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
         SelectedMedia = null;
     }
 
+    /// <summary>
+    /// Updates the selected media item title to a predefined static value.
+    /// </summary>
     private void EditStaticItem()
     {
         if (SelectedMedia is null)
