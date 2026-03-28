@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media.Imaging;
 
 using Deimos.UI.Models;
 
@@ -22,7 +21,6 @@ public sealed class MediaPlayback
 
     private readonly ObservableCollection<MediaFile> _playList; // Shared playlist collection
     private readonly MediaElement _player; // Playback surface
-    private readonly Image _imageViewer; // Artwork or image viewer
     private readonly Action<string> _updateNowPlaying; // Callback to update UI text
     private MediaFile? _currentlyPlaying; // Track that is marked as playing
     private bool _isPlaying; // Tracks playback state
@@ -33,11 +31,10 @@ public sealed class MediaPlayback
     /// Initializes playback service with playlist data and target UI controls.
     /// </summary>
     public MediaPlayback(ObservableCollection<MediaFile> playList, MediaElement player, 
-        Image imageViewer, Action<string> updateNowPlaying)
+        Action<string> updateNowPlaying)
     {
         _playList = playList;
         _player = player;
-        _imageViewer = imageViewer;
         _updateNowPlaying = updateNowPlaying;
         Debug.WriteLine("MediaPlayback initialized");
     }
@@ -174,7 +171,6 @@ public sealed class MediaPlayback
         // Images are shown in the right-side viewer
         if (ImageExtensions.Contains(extension))
         {
-            _imageViewer.Visibility = Visibility.Visible;   // Show image pane
             _player.Visibility = Visibility.Collapsed;  // Hide player surface
 
             try
@@ -182,7 +178,6 @@ public sealed class MediaPlayback
                 Debug.WriteLine($"Showing image: {selectedMedia.FilePath}");
                 _player.Stop(); // Stop any previous playback
                 _player.Source = null; // Clear player source
-                _imageViewer.Source = new BitmapImage(sourceUri);   // Load image
                 _isPlaying = false; // Image preview is not playback
                 _updateNowPlaying($"Viewing: {selectedMedia.Title ?? 
                                                Path.GetFileNameWithoutExtension(selectedMedia.FilePath)}");
@@ -208,15 +203,11 @@ public sealed class MediaPlayback
             // Audio uses cover art; video uses the media element only
             if (AudioExtensions.Contains(extension))
             {
-                _imageViewer.Visibility = Visibility.Visible;
                 _player.Visibility = Visibility.Visible;
-                _imageViewer.Source = LoadArtwork(selectedMedia); // Load cover art
             }
             else
             {
-                _imageViewer.Visibility = Visibility.Collapsed;
                 _player.Visibility = Visibility.Visible;
-                _imageViewer.Source = null;
             }
 
             _player.Stop(); // Reset playback before switching
@@ -347,47 +338,6 @@ public sealed class MediaPlayback
         catch (Exception ex)
         {
             Debug.WriteLine($"Failed to extract embedded artwork for {sourceFilePath}. Error: {ex.Message}");
-            return null;
-        }
-    }
-
-    /// <summary>
-    /// Loads artwork from disk into a BitmapImage for binding.
-    /// </summary>
-    private static BitmapImage? LoadArtwork(MediaFile selectedMedia)
-    {
-        if (string.IsNullOrWhiteSpace(selectedMedia.ImagePath))
-        {
-            Debug.WriteLine("No artwork path available for selected media.");
-            return null;
-        }
-
-        try
-        {
-            Debug.WriteLine($"Loading artwork: {selectedMedia.ImagePath}");
-            if (!Uri.TryCreate(selectedMedia.ImagePath, UriKind.RelativeOrAbsolute, out var uri))
-            {
-                Debug.WriteLine($"Artwork path is not a valid URI: {selectedMedia.ImagePath}");
-                return null;
-            }
-
-            if (uri.IsFile && !File.Exists(uri.LocalPath))
-            {
-                Debug.WriteLine($"Artwork file not found: {uri.LocalPath}");
-                return null;
-            }
-
-            var bitmap = new BitmapImage(); // Bitmap instance for binding
-            bitmap.BeginInit();
-            bitmap.CacheOption = BitmapCacheOption.OnLoad;
-            bitmap.UriSource = uri;
-            bitmap.EndInit();
-
-            return bitmap;
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Failed to load artwork {selectedMedia.ImagePath}. Error: {ex.Message}");
             return null;
         }
     }

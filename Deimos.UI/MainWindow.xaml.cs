@@ -17,7 +17,7 @@ public partial class MainWindow    // Connects partial logic from xaml file and 
     {
         InitializeComponent();  // Builds and connects the XAML UI components to this class
         InitializeWindowChrome();
-        _viewModel = new MainViewModel(Player, ImageViewer); // Wire VM to playback controls
+        _viewModel = new MainViewModel(Player); // Wire VM to playback controls
         DataContext = _viewModel; // Bind UI to view model
         InitializeSeekBarLogic();
         InitializeNowPlayingScroll(); // Enable title scrolling
