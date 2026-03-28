@@ -299,6 +299,18 @@ public sealed class MediaPlayback
     }
 
     /// <summary>
+    /// Marks playback as ended without changing UI text.
+    /// </summary>
+    public void MarkPlaybackEnded()
+    {
+        if (_isPlaying)
+        {
+            _isPlaying = false;
+            Debug.WriteLine("Playback ended.");
+        }
+    }
+
+    /// <summary>
     /// Extracts embedded artwork from a tagged file and writes it to the cache.
     /// </summary>
     private static string? ExtractEmbeddedArtwork(TagLib.File tagFile, string cacheFolder, string sourceFilePath)

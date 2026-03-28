@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -25,6 +23,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private int _shufflePosition = -1; // Current index within the shuffle order
     private MediaFile? _selectedMedia;  // Currently selected playlist item
     private string _nowPlayingText = "Now playing:";    // Text shown in the UI label
+    private bool _isPlaying; // Tracks current playback state
     private bool _isShuffleEnabled; // Shuffle toggle state
     private bool _isRepeatEnabled;  // Repeat toggle state
     
@@ -38,7 +37,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         // Playback service handles media scanning and playback logic
         _mediaPlayback = new MediaPlayback(PlayList, player, imageViewer, UpdateNowPlayingText);
         // Command routes the UI action to playback logic
-        PlaySelectedCommand = new RelayCommand(_ => _mediaPlayback.PlaySelected(SelectedMedia), 
+        PlaySelectedCommand = new RelayCommand(_ => PlaySelectedFromUi(), 
             _ => SelectedMedia is not null);
         PlayPauseCommand = new RelayCommand(_ => TogglePlayPause(), _ => SelectedMedia is not null);
         StopCommand = new RelayCommand(_ => StopPlayback(), _ => SelectedMedia is not null);
@@ -58,7 +57,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _ = RemoveSelectedCommand;
         EditStaticCommand = new RelayCommand(_ => EditStaticItem(), _ => SelectedMedia is not null);  // Edit a selected item
         _ = EditStaticCommand;
-        PlayList.CollectionChanged += (_, __) =>
+        PlayList.CollectionChanged += (_, _) =>
         {
             NextCommand.RaiseCanExecuteChanged();
             PreviousCommand.RaiseCanExecuteChanged();
@@ -161,6 +160,22 @@ public sealed class MainViewModel : INotifyPropertyChanged
     }
 
     public bool IsShuffleImageActive => IsShuffleEnabled && SelectedMedia is not null && IsImageMedia(SelectedMedia);
+
+    public bool IsPlaying
+    {
+        get => _isPlaying;
+        private set
+        {
+            if (_isPlaying != value)
+            {
+                _isPlaying = value;
+                OnPropertyChanged(nameof(IsPlaying));
+                OnPropertyChanged(nameof(PlayPauseIconPath));
+            }
+        }
+    }
+
+    public string PlayPauseIconPath => IsPlaying ? "Assets/Icons/Controls/pause.svg" : "Assets/Icons/Controls/play.svg";
     
     /// <summary>
     /// Receives playback updates and pushes them into the bound text property.
@@ -168,6 +183,13 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private void UpdateNowPlayingText(string text)
     {
         NowPlayingText = text;
+    }
+
+    private void PlaySelectedFromUi()
+    {
+        _mediaPlayback.PlaySelected(SelectedMedia);
+        SyncPlaybackState();
+        ScheduleImageAdvanceIfNeeded();
     }
 
     /// <summary>
@@ -181,13 +203,15 @@ public sealed class MainViewModel : INotifyPropertyChanged
             return;
         }
 
-        if (_mediaPlayback.IsPlaying)
+        if (IsPlaying)
         {
             _mediaPlayback.Pause();
+            SyncPlaybackState();
             return;
         }
 
         _mediaPlayback.PlayOrResume(SelectedMedia);
+        SyncPlaybackState();
         ScheduleImageAdvanceIfNeeded();
     }
 
@@ -197,6 +221,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private void StopPlayback()
     {
         _mediaPlayback.Stop();
+        SyncPlaybackState();
         StopImageAdvanceTimer();
     }
 
@@ -250,23 +275,21 @@ public sealed class MainViewModel : INotifyPropertyChanged
             PlayShufflePrevious();
             return;
         }
-        else
-        {
-            var currentIndex = SelectedMedia is null ? PlayList.Count : PlayList.IndexOf(SelectedMedia);
-            var previousIndex = currentIndex - 1;
-            if (previousIndex < 0)
-            {
-                if (!IsRepeatEnabled)
-                {
-                    Debug.WriteLine("PlayPrevious skipped: start of playlist and repeat disabled");
-                    return;
-                }
 
-                previousIndex = PlayList.Count - 1;
+        var currentIndex = SelectedMedia is null ? PlayList.Count : PlayList.IndexOf(SelectedMedia);
+        var previousIndex = currentIndex - 1;
+        if (previousIndex < 0)
+        {
+            if (!IsRepeatEnabled)
+            {
+                Debug.WriteLine("PlayPrevious skipped: start of playlist and repeat disabled");
+                return;
             }
 
-            SelectedMedia = PlayList[previousIndex];
+            previousIndex = PlayList.Count - 1;
         }
+
+        SelectedMedia = PlayList[previousIndex];
 
         StartPlaybackForSelection();
     }
@@ -326,6 +349,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
         Debug.WriteLine("HandleMediaEnded: advancing to next track");
         PlayNext();
+    }
+
+    public void NotifyPlaybackEnded()
+    {
+        _mediaPlayback.MarkPlaybackEnded();
+        SyncPlaybackState();
     }
 
     private int CurrentIndex => SelectedMedia is null ? -1 : PlayList.IndexOf(SelectedMedia);
@@ -433,6 +462,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private void StartPlaybackForSelection()
     {
         _mediaPlayback.PlaySelected(SelectedMedia);
+        SyncPlaybackState();
         ScheduleImageAdvanceIfNeeded();
     }
 
@@ -551,6 +581,11 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
         SelectedMedia.Title = "Edited static title";
         Debug.WriteLine($"Static title applied: {SelectedMedia.Title}");
+    }
+
+    private void SyncPlaybackState()
+    {
+        IsPlaying = _mediaPlayback.IsPlaying;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

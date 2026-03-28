@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
@@ -17,10 +16,11 @@ namespace Deimos.UI;
 public partial class MainWindow
 {
     private readonly SeekBar _seekBar = new();  // Stores seek bar state and calculations
-    private readonly DispatcherTimer _seekBarTimer = new()
+    private readonly DispatcherTimer _seekBarTimer = new()  // Periodically syncs the seek bar with playback
     {
         Interval = TimeSpan.FromMilliseconds(250)
-    };  // Periodically syncs the seek bar with playback
+    };
+    
     private const double ImageShuffleDurationSeconds = 5; // Duration for shuffled image display
     private bool _isImageShuffleActive; // Tracks when shuffle image mode is active
     private DateTime _imageShuffleStart; // Start time for image shuffle progress
@@ -185,6 +185,7 @@ public partial class MainWindow
         UpdateTimeLabels(TimeSpan.Zero, Player.NaturalDuration.HasTimeSpan ? Player.NaturalDuration.TimeSpan : TimeSpan.Zero);
         UpdateSeekBarVisual();
         UpdateSeekBarMode();
+        _viewModel.NotifyPlaybackEnded();
         _viewModel.HandleMediaEnded();
         Debug.WriteLine("MainWindow: Media ended, seek bar reset.");
     }
