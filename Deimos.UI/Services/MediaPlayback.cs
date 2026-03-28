@@ -25,6 +25,9 @@ public sealed class MediaPlayback
     private readonly Image _imageViewer; // Artwork or image viewer
     private readonly Action<string> _updateNowPlaying; // Callback to update UI text
     private MediaFile? _currentlyPlaying; // Track that is marked as playing
+    private bool _isPlaying; // Tracks playback state
+
+    public bool IsPlaying => _isPlaying; // Exposes playback state for UI logic
 
     /// <summary>
     /// Initializes playback service with playlist data and target UI controls.
@@ -180,6 +183,7 @@ public sealed class MediaPlayback
                 _player.Stop(); // Stop any previous playback
                 _player.Source = null; // Clear player source
                 _imageViewer.Source = new BitmapImage(sourceUri);   // Load image
+                _isPlaying = false; // Image preview is not playback
                 _updateNowPlaying($"Viewing: {selectedMedia.Title ?? 
                                                Path.GetFileNameWithoutExtension(selectedMedia.FilePath)}");
                 MarkAsPlaying(selectedMedia);
@@ -218,6 +222,7 @@ public sealed class MediaPlayback
             _player.Stop(); // Reset playback before switching
             _player.Source = sourceUri; // Set media source
             _player.Play(); // Start playback
+            _isPlaying = true; // Track active playback
             Debug.WriteLine("Playback started successfully");
             _updateNowPlaying($"Now playing: {selectedMedia.Title ?? 
                                                Path.GetFileNameWithoutExtension(selectedMedia.FilePath)}");
@@ -226,6 +231,70 @@ public sealed class MediaPlayback
         catch (Exception ex)
         {
             Debug.WriteLine($"Failed to start playback for {selectedMedia.FilePath}. Error: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Starts playback for a selection or resumes the current source if already loaded.
+    /// </summary>
+    public void PlayOrResume(MediaFile? selectedMedia)
+    {
+        if (selectedMedia is null)
+        {
+            Debug.WriteLine("PlayOrResume skipped: no selection");
+            return;
+        }
+
+        if (ReferenceEquals(_currentlyPlaying, selectedMedia) && _player.Source is not null)
+        {
+            Debug.WriteLine("Resuming current playback");
+            _player.Play();
+            _isPlaying = true;
+            _updateNowPlaying($"Now playing: {selectedMedia.Title ?? 
+                                           Path.GetFileNameWithoutExtension(selectedMedia.FilePath)}");
+            return;
+        }
+
+        PlaySelected(selectedMedia);
+    }
+
+    /// <summary>
+    /// Pauses the current playback if possible.
+    /// </summary>
+    public void Pause()
+    {
+        if (_player.Source is null)
+        {
+            Debug.WriteLine("Pause skipped: no active media source");
+            return;
+        }
+
+        Debug.WriteLine("Pausing playback");
+        _player.Pause();
+        _isPlaying = false;
+        if (_currentlyPlaying is not null)
+        {
+            _updateNowPlaying($"Paused: {_currentlyPlaying.Title ?? Path.GetFileNameWithoutExtension(_currentlyPlaying.FilePath)}");
+        }
+    }
+
+    /// <summary>
+    /// Stops the current playback if possible.
+    /// </summary>
+    public void Stop()
+    {
+        if (_player.Source is null)
+        {
+            Debug.WriteLine("Stop skipped: no active media source");
+            return;
+        }
+
+        Debug.WriteLine("Stopping playback");
+        _player.Stop();
+        _isPlaying = false;
+        if (_currentlyPlaying is not null)
+        {
+            _updateNowPlaying($"Stopped: {_currentlyPlaying.Title ?? Path.GetFileNameWithoutExtension(_currentlyPlaying.FilePath)}");
         }
     }
 

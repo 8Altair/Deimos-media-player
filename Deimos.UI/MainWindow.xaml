@@ -155,40 +155,40 @@
                                 </Grid.ColumnDefinitions>
 
                                 <WrapPanel Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                    <Button x:Name="Shuffle" Style="{StaticResource SmallPlayerIconButtonStyle}" 
-                                            ToolTip="Shuffle">
+                                    <Button x:Name="Shuffle" Style="{StaticResource ShuffleToggleButtonStyle}"
+                                            ToolTip="Shuffle" Command="{Binding ShuffleCommand}">
                                         <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
                                                         Source="Assets/Icons/Controls/shuffle.svg"/> <!-- Shuffle icon -->
                                     </Button>
 
-                                    <Button x:Name="Repeat" Style="{StaticResource SmallPlayerIconButtonStyle}" 
-                                            ToolTip="Repeat">
+                                    <Button x:Name="Repeat" Style="{StaticResource RepeatToggleButtonStyle}"
+                                            ToolTip="Repeat" Command="{Binding RepeatCommand}">
                                         <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
                                                         Source="Assets/Icons/Controls/repeat.svg"/> <!-- Repeat icon -->
                                     </Button>
 
                                     <Button x:Name="Stop" Style="{StaticResource SmallPlayerIconButtonStyle}" 
-                                            ToolTip="Stop">
+                                            ToolTip="Stop" Command="{Binding StopCommand}">
                                         <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
                                                         Source="Assets/Icons/Controls/stop.svg"/> <!-- Stop icon -->
                                     </Button>
 
                                     <Button x:Name="Previous" Style="{StaticResource PlayerIconButtonStyle}" 
-                                            ToolTip="Previous">
+                                            ToolTip="Previous" Command="{Binding PreviousCommand}">
                                         <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
                                                         Source="Assets/Icons/Controls/previous.svg"/> <!-- Previous icon -->
                                     </Button>
                                 </WrapPanel>
 
                                 <Button x:Name="PlayPause" Grid.Column="1" Style="{StaticResource PlayerIconButtonStyle}" 
-                                        ToolTip="Play / Pause">
+                                        ToolTip="Play / Pause" Command="{Binding PlayPauseCommand}">
                                     <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
                                                     Source="Assets/Icons/Controls/play.svg"/> <!-- Play / pause icon -->
                                 </Button>
 
                                 <WrapPanel Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center">
                                     <Button x:Name="Next" Style="{StaticResource PlayerIconButtonStyle}" 
-                                            ToolTip="Next">
+                                            ToolTip="Next" Command="{Binding NextCommand}">
                                         <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
                                                         Source="Assets/Icons/Controls/next.svg"/> <!-- Next icon -->
                                     </Button>

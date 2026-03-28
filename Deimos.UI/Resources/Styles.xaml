@@ -338,6 +338,28 @@
         <Setter Property="Height" Value="38"/>
     </Style>
 
+    <Style x:Key="ShuffleToggleButtonStyle" TargetType="Button"
+           BasedOn="{StaticResource SmallPlayerIconButtonStyle}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsShuffleEnabled}" Value="True">
+                <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                <Setter Property="Foreground" Value="White"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="RepeatToggleButtonStyle" TargetType="Button"
+           BasedOn="{StaticResource SmallPlayerIconButtonStyle}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsRepeatEnabled}" Value="True">
+                <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                <Setter Property="Foreground" Value="White"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
     <!-- Title bar button style for minimize and maximize/restore -->
     <Style x:Key="TitleBarButtonStyle" TargetType="Button">
         <Setter Property="Width" Value="46"/>
