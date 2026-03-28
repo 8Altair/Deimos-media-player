@@ -299,6 +299,16 @@ public sealed class MediaPlayback
     }
 
     /// <summary>
+    /// Updates the playback volume on the media element.
+    /// </summary>
+    public void SetVolume(double volume)
+    {
+        var clamped = Math.Max(0, Math.Min(1, volume));
+        _player.Volume = clamped;
+        Debug.WriteLine($"Volume set to {clamped:0.00}");
+    }
+
+    /// <summary>
     /// Marks playback as ended without changing UI text.
     /// </summary>
     public void MarkPlaybackEnded()

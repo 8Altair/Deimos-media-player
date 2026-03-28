@@ -192,6 +192,10 @@
                                         <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
                                                         Source="Assets/Icons/Controls/next.svg"/> <!-- Next icon -->
                                     </Button>
+
+                                    <Slider Width="90" Height="22" Margin="8,0,0,0"
+                                            Minimum="0" Maximum="1" Value="{Binding Volume, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            IsMoveToPointEnabled="True" ToolTip="Volume"/>
                                 </WrapPanel>
                             </Grid>
                         </Grid>
