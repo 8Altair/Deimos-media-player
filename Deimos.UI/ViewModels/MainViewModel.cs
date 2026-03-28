@@ -24,6 +24,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private MediaFile? _selectedMedia;  // Currently selected playlist item
     private string _nowPlayingText = "Now playing:";    // Text shown in the UI label
     private bool _isPlaying; // Tracks current playback state
+    private double _volume = 0.5; // Default volume level
     private bool _isShuffleEnabled; // Shuffle toggle state
     private bool _isRepeatEnabled;  // Repeat toggle state
     
@@ -51,12 +52,14 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _ = PreviousCommand;
         _ = ShuffleCommand;
         _ = RepeatCommand;
+        _ = PlayPauseIconPath;
         AddStaticCommand = new RelayCommand(_ => AddStaticItem());  // Adds a predefined item
         _ = AddStaticCommand;   // Touch getter for analyzers that don't see XAML bindings
         RemoveSelectedCommand = new RelayCommand(_ => RemoveSelectedItem(), _ => SelectedMedia is not null);  // Remove a selected item
         _ = RemoveSelectedCommand;
         EditStaticCommand = new RelayCommand(_ => EditStaticItem(), _ => SelectedMedia is not null);  // Edit a selected item
         _ = EditStaticCommand;
+        _ = Volume;
         PlayList.CollectionChanged += (_, _) =>
         {
             NextCommand.RaiseCanExecuteChanged();
@@ -65,6 +68,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 BuildShuffleOrder(CurrentIndex);
         };
         _shuffleImageTimer.Tick += ShuffleImageTimer_OnTick;
+        _mediaPlayback.SetVolume(_volume);
         _mediaPlayback.LoadDefaultMediaFiles();
     }
     
@@ -176,6 +180,21 @@ public sealed class MainViewModel : INotifyPropertyChanged
     }
 
     public string PlayPauseIconPath => IsPlaying ? "Assets/Icons/Controls/pause.svg" : "Assets/Icons/Controls/play.svg";
+
+    public double Volume
+    {
+        get => _volume;
+        set
+        {
+            var clamped = Math.Max(0, Math.Min(1, value));
+            if (Math.Abs(_volume - clamped) > 0.0001)
+            {
+                _volume = clamped;
+                _mediaPlayback.SetVolume(_volume);
+                OnPropertyChanged(nameof(Volume));
+            }
+        }
+    }
     
     /// <summary>
     /// Receives playback updates and pushes them into the bound text property.
