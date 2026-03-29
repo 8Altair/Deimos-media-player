@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
+using System.Windows.Input;
 
 using Microsoft.Win32;
 
@@ -40,6 +41,17 @@ public partial class AddMediaWindow
         var all = string.Join(";", audio, video, images);
 
         return $"All supported media|{all}|Audio files|{audio}|Video files|{video}|Image files|{images}|All files|*.*";
+    }
+
+    private void TitleBar_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ButtonState == MouseButtonState.Pressed)
+            DragMove();
+    }
+
+    private void Close_OnClick(object sender, RoutedEventArgs e)
+    {
+        Close();
     }
 
     private void Save_OnClick(object sender, RoutedEventArgs e)
