@@ -143,7 +143,7 @@
                                 CornerRadius="6" Background="{StaticResource SurfaceBackgroundBrush}"
                                 BorderBrush="{StaticResource ControlBorderBrush}" BorderThickness="1"
                                 Cursor="Hand" MouseLeftButtonUp="ImagePreview_OnMouseLeftButtonUp">
-                            <Image x:Name="CoverPreview" Stretch="UniformToFill"
+                            <Image Stretch="UniformToFill"
                                    Source="{Binding ElementName=ImagePathTextBox, Path=Text,
                                            FallbackValue='pack://application:,,,/Assets/Default_cover/Default.png',
                                            TargetNullValue='pack://application:,,,/Assets/Default_cover/Default.png'}"/>
