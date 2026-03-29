@@ -36,4 +36,28 @@ public partial class MainWindow
 
         addWindow.ShowDialog();
     }
+
+    /// <summary>
+    /// Opens the edit media window as a non-modal dialog.
+    /// </summary>
+    private void EditMenu_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuItem menuItem)
+            Debug.WriteLine($"Detected: {menuItem.Header}");
+
+        if (_viewModel.SelectedMedia is null)
+        {
+            MessageBox.Show(this, "Select a media item first.", "No selection", 
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var editWindow = new EditMediaWindow(_viewModel.SelectedMedia)
+        {
+            Owner = this,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner
+        };
+
+        editWindow.Show();
+    }
 }
