@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
@@ -15,59 +16,83 @@ public partial class AddMediaWindow
     private const string DefaultCoverPath = "pack://application:,,,/Assets/Default_cover/Default.png";
     private readonly ObservableCollection<MediaFile> _playList;
 
+    /// <summary>
+    /// Initializes the add-media dialog with the shared playlist reference.
+    /// </summary>
     public AddMediaWindow(ObservableCollection<MediaFile> playList)
     {
-        _playList = playList;
+        _playList = playList;   // Reuse the live playlist collection
         InitializeComponent();
+        Debug.WriteLine("AddMediaWindow initialized.");
     }
 
+    /// <summary>
+    /// Opens the file picker and fills the file path field.
+    /// </summary>
     private void BrowseFile_OnClick(object sender, RoutedEventArgs e)
     {
         var dialog = new OpenFileDialog
         {
-            Filter = BuildMediaFilter(),
+            Filter = BuildMediaFilter(),    // Limit selections to supported media types
             Multiselect = false
         };
 
-        if (dialog.ShowDialog(this) == true)
-            FilePathTextBox.Text = dialog.FileName;
+        if (dialog.ShowDialog(this) == true)    // Only proceed when the dialog completes successfully
+            FilePathTextBox.Text = dialog.FileName; // Populate the chosen file path
     }
 
+    /// <summary>
+    /// Builds the OpenFileDialog filter from supported media extensions.
+    /// </summary>
     private static string BuildMediaFilter()
     {
         var audio = string.Join(";", MediaExtensions.AudioExtensions.Select(ext => $"*{ext}"));
         var video = string.Join(";", MediaExtensions.VideoExtensions.Select(ext => $"*{ext}"));
         var images = string.Join(";", MediaExtensions.ImageExtensions.Select(ext => $"*{ext}"));
-        var all = string.Join(";", audio, video, images);
+        var all = string.Join(";", audio, video, images);   // Combined filter entry
 
         return $"All supported media|{all}|Audio files|{audio}|Video files|{video}|Image files|{images}|All files|*.*";
     }
 
+    /// <summary>
+    /// Enables drag-to-move for the custom title bar.
+    /// </summary>
     private void TitleBar_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (e.ButtonState == MouseButtonState.Pressed)
             DragMove();
     }
 
+    /// <summary>
+    /// Closes the add-media dialog without saving.
+    /// </summary>
     private void Close_OnClick(object sender, RoutedEventArgs e)
     {
         Close();
     }
 
+    /// <summary>
+    /// Validates the input, adds the media item, and closes the dialog.
+    /// </summary>
     private void Save_OnClick(object sender, RoutedEventArgs e)
     {
         if (!TryBuildMediaFile(out var mediaFile, out var errorMessage))
         {
+            Debug.WriteLine($"AddMediaWindow validation failed: {errorMessage}");
             MessageBox.Show(this, errorMessage, "Invalid input", MessageBoxButton.OK, 
                 MessageBoxImage.Warning);
             return;
         }
 
-        _playList.Add(mediaFile);
+        _playList.Add(mediaFile);   // Add the new item directly to the live playlist
+        Debug.WriteLine($"AddMediaWindow added: {mediaFile.Title}");
         DialogResult = true;
         Close();
     }
 
+    /// <summary>
+    /// Builds a MediaFile from the form, returning false with an error message on failure.
+    /// </summary>
     private bool TryBuildMediaFile(out MediaFile mediaFile, out string errorMessage)
     {
         var title = TitleTextBox.Text.Trim();
@@ -76,7 +101,7 @@ public partial class AddMediaWindow
         var durationText = DurationTextBox.Text.Trim();
         var artist = ArtistTextBox.Text.Trim();
         var album = AlbumTextBox.Text.Trim();
-        var isPlaying = IsPlayingCheckBox.IsChecked == true;
+        var isPlaying = IsPlayingCheckBox.IsChecked == true;    // Optional initial state
 
         if (string.IsNullOrWhiteSpace(title))
         {
@@ -122,7 +147,7 @@ public partial class AddMediaWindow
             return false;
         }
 
-        var duration = TimeSpan.Zero;
+        var duration = TimeSpan.Zero;   // Images have no duration
         if (!MediaExtensions.ImageExtensions.Contains(extension))
         {
             if (!string.IsNullOrWhiteSpace(durationText) &&
@@ -138,7 +163,7 @@ public partial class AddMediaWindow
         {
             imagePath = MediaExtensions.ImageExtensions.Contains(extension)
                 ? filePath
-                : DefaultCoverPath;
+                : DefaultCoverPath; // Use the default cover when no image is supplied
         }
         else if (!TryResolveExtension(imagePath, out var imageExtension) ||
                  !MediaExtensions.ImageExtensions.Contains(imageExtension))
@@ -163,6 +188,9 @@ public partial class AddMediaWindow
         return true;
     }
 
+    /// <summary>
+    /// Resolves a file extension from a path or URI.
+    /// </summary>
     private static bool TryResolveExtension(string path, out string extension)
     {
         extension = string.Empty;
@@ -177,6 +205,9 @@ public partial class AddMediaWindow
         return !string.IsNullOrWhiteSpace(extension);
     }
 
+    /// <summary>
+    /// Returns true when the extension matches supported media types.
+    /// </summary>
     private static bool IsSupportedMediaExtension(string extension)
     {
         return MediaExtensions.AudioExtensions.Contains(extension) ||
