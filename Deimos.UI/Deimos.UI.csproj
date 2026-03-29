@@ -37,6 +37,12 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Content Include="Media\**\*">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
       <Page Update="Resources\Styles.xaml">
         <Generator>MSBuild:Compile</Generator>
         <XamlRuntime>Wpf</XamlRuntime>

@@ -97,9 +97,7 @@ public partial class EditMediaWindow
         extension = string.Empty;
         if (Uri.TryCreate(path, UriKind.RelativeOrAbsolute, out var uri))
         {
-            var uriPath = uri.IsAbsoluteUri
-                ? (uri.IsFile ? uri.LocalPath : uri.AbsolutePath)
-                : uri.OriginalString;
+            var uriPath = uri.IsAbsoluteUri ? uri.IsFile ? uri.LocalPath : uri.AbsolutePath : uri.OriginalString;
             extension = Path.GetExtension(uriPath).ToLowerInvariant();
             return !string.IsNullOrWhiteSpace(extension);
         }
@@ -268,6 +266,13 @@ public partial class EditMediaWindow
             album = null;
             return false;
         }
+        else if (!ImagePathExists(imagePath))
+        {
+            errorMessage = "The selected image does not exist.";
+            artist = null;
+            album = null;
+            return false;
+        }
 
         artist = string.IsNullOrWhiteSpace(artistText) ? null : artistText;
         album = string.IsNullOrWhiteSpace(albumText) ? null : albumText;
@@ -356,6 +361,20 @@ public partial class EditMediaWindow
             return false;
 
         return MediaExtensions.ImageExtensions.Contains(extension);
+    }
+
+    private static bool ImagePathExists(string imagePath)
+    {
+        if (imagePath.StartsWith("pack://", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (Uri.TryCreate(imagePath, UriKind.RelativeOrAbsolute, out var imageUri) &&
+            imageUri.IsAbsoluteUri && imageUri.IsFile)
+        {
+            return File.Exists(imageUri.LocalPath);
+        }
+
+        return Path.IsPathRooted(imagePath) && File.Exists(imagePath);
     }
 
     private static bool TryGetActualDuration(string filePath, out TimeSpan duration, out string errorMessage)

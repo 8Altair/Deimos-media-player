@@ -11,7 +11,7 @@ namespace Deimos.UI.Services;
 
 public sealed class MediaPlayback
 {
-    private const string MediaFolder = @"C:\Users\dinoa\OneDrive\Radna površina\Fakulteto\Treća godina\Drugi semestar\Interakcija čovjek-računar\Vježbe\Media player\Media";
+    private static readonly string MediaFolder = Path.Combine(AppContext.BaseDirectory, "Media");
     private const string FallbackAudioImage = "pack://application:,,,/Assets/Default_cover/Default.png"; // Default audio art
     private const string FallbackVideoImage = "pack://application:,,,/Assets/Default_cover/Default.png"; // Default video art
 
