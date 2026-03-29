@@ -1,11 +1,17 @@
 using System.Diagnostics;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+
+using Deimos.UI.Windowing;
+
 
 namespace Deimos.UI;
 
 public partial class MainWindow
 {
+    private EditMediaWindow? _editWindow;
+
     /// <summary>
     /// Event handler for clicking Exit.
     /// sender = control that triggered the event, e = event data for this routed event.
@@ -15,5 +21,90 @@ public partial class MainWindow
         Debug.WriteLine("Detected: " + ((MenuItem)sender).Name);    // Writes the clicked MenuItem name to debug output
         Debug.WriteLine("Shutting down application.");   // Writes a debug message before shutting down
         Application.Current.Shutdown(); // Closes the entire application
+    }
+
+    /// <summary>
+    /// Opens the add media window as a modal dialog.
+    /// </summary>
+    private void AddMenu_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuItem menuItem)
+            Debug.WriteLine($"Detected: {menuItem.Header}");
+
+        var addWindow = new AddMediaWindow(_viewModel.PlayList)
+        {
+            Owner = this,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner
+        };
+
+        var saved = addWindow.ShowDialog() == true;
+        if (!saved || !addWindow.StartPlaybackAfterSave || addWindow.AddedMedia is null)
+            return;
+
+        _viewModel.SelectedMedia = addWindow.AddedMedia;
+        if (_viewModel.PlaySelectedCommand.CanExecute(null))
+            _viewModel.PlaySelectedCommand.Execute(null);
+    }
+
+    /// <summary>
+    /// Opens the edit media window as a non-modal dialog.
+    /// </summary>
+    private void EditMenu_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuItem menuItem)
+            Debug.WriteLine($"Detected: {menuItem.Header}");
+
+        if (_viewModel.SelectedMedia is null)
+            return;
+
+        if (_editWindow is not null)
+        {
+            if (_editWindow.IsVisible)
+            {
+                _editWindow.UpdateMedia(_viewModel.SelectedMedia);
+                if (_editWindow.WindowState == WindowState.Minimized)
+                    _editWindow.WindowState = WindowState.Normal;
+                _editWindow.Topmost = true;
+                _editWindow.Activate();
+                _editWindow.Focus();
+                return;
+            }
+
+            _editWindow = null;
+        }
+
+        if (_editWindow is null)
+        {
+            _editWindow = new EditMediaWindow(_viewModel.SelectedMedia)
+            {
+                Owner = null,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                ShowInTaskbar = true,
+                Topmost = true
+            };
+
+            _editWindow.Closed += (_, _) => _editWindow = null;
+            _editWindow.Show();
+        }
+    }
+
+    /// <summary>
+    /// Updates the edit window when the selected media changes in the view model.
+    /// </summary>
+    private void ViewModel_OnPropertyChangedForEditWindow(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ViewModels.MainViewModel.SelectedMedia))
+            UpdateEditWindowSelection();
+    }
+
+    /// <summary>
+    /// Pushes the current selection into the open edit window.
+    /// </summary>
+    private void UpdateEditWindowSelection()
+    {
+        if (_editWindow is null || !_editWindow.IsVisible)
+            return;
+
+        _editWindow.UpdateMedia(_viewModel.SelectedMedia);
     }
 }

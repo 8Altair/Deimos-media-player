@@ -5,7 +5,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
-        xmlns:local="clr-namespace:Deimos.UI"
         mc:Ignorable="d"
         Title="Deimos"
         WindowState="Maximized"
@@ -26,7 +25,7 @@
                             GlassFrameThickness="0" UseAeroCaptionButtons="False"/>
     </shell:WindowChrome.WindowChrome>
     
-    <Border x:Name="WindowFrame" Background="{StaticResource WindowBackgroundBrush}" Margin="0">
+    <Border Background="{StaticResource WindowBackgroundBrush}" Margin="0">
         <!-- Root layout for custom title bar and application content -->
         <Grid Background="{StaticResource WindowBackgroundBrush}">
             <Grid.RowDefinitions>
@@ -80,16 +79,17 @@
 
                 <!-- Main menu -->
                 <Menu DockPanel.Dock="Top"> <!-- Container for top-level menu items -->
-                    <MenuItem x:Name="MenuItemFile" Header="_File"> <!-- File menu with Alt+F -->
-                        <MenuItem x:Name="MenuItemExit" Header="E_xit" Tag="Destructive" Click="ExitClick"/> <!-- Exit command with X access key -->
+                    <MenuItem Header="_File"> <!-- File menu with Alt+F -->
+                        <MenuItem Header="E_xit" Tag="Destructive" Click="ExitClick"/> <!-- Exit command with X access key -->
                     </MenuItem>
 
                     <MenuItem Header="_List"> <!-- Playlist management menu -->
                         <MenuItem Header="Add static" Command="{Binding AddStaticCommand}"/>
                         <MenuItem Header="Edit static" Command="{Binding EditStaticCommand}"/>
                         <Separator/> <!-- Visual separation between static and dynamic options -->
-                        <MenuItem Header="Add"/>
-                        <MenuItem Header="Edit"/>
+                        <MenuItem Header="Add" Click="AddMenu_Click"/>
+                        <MenuItem Header="Edit" Click="EditMenu_Click"
+                                  IsEnabled="{Binding HasSelectedMedia}"/>
                         <MenuItem Header="Remove" Command="{Binding RemoveSelectedCommand}"/>
                     </MenuItem>
                 </Menu>
@@ -159,46 +159,47 @@
                                 </Grid.ColumnDefinitions>
 
                                 <WrapPanel Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                    <Button x:Name="Shuffle" Style="{StaticResource ShuffleToggleButtonStyle}" 
+                                    <Button Style="{StaticResource ShuffleToggleButtonStyle}" 
                                             ToolTip="Shuffle" Command="{Binding ShuffleCommand}">
                                         <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
                                                         Source="Assets/Icons/Controls/shuffle.svg"/> <!-- Shuffle icon -->
                                     </Button>
 
-                                    <Button x:Name="Repeat" Style="{StaticResource RepeatToggleButtonStyle}" 
+                                    <Button Style="{StaticResource RepeatToggleButtonStyle}" 
                                             ToolTip="Repeat" Command="{Binding RepeatCommand}">
                                         <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
                                                         Source="Assets/Icons/Controls/repeat.svg"/> <!-- Repeat icon -->
                                     </Button>
 
-                                    <Button x:Name="Stop" Style="{StaticResource SmallPlayerIconButtonStyle}" 
+                                    <Button Style="{StaticResource SmallPlayerIconButtonStyle}" 
                                             ToolTip="Stop" Command="{Binding StopCommand}">
                                         <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
                                                         Source="Assets/Icons/Controls/stop.svg"/> <!-- Stop icon -->
                                     </Button>
 
-                                    <Button x:Name="Previous" Style="{StaticResource PlayerIconButtonStyle}" 
+                                    <Button Style="{StaticResource PlayerIconButtonStyle}" 
                                             ToolTip="Previous" Command="{Binding PreviousCommand}">
                                         <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
                                                         Source="Assets/Icons/Controls/previous.svg"/> <!-- Previous icon -->
                                     </Button>
                                 </WrapPanel>
 
-                                <Button x:Name="PlayPause" Grid.Column="1" Style="{StaticResource PlayerIconButtonStyle}" 
+                                <Button Grid.Column="1" Style="{StaticResource PlayerIconButtonStyle}" 
                                         ToolTip="Play / Pause" Command="{Binding PlayPauseCommand}">
                                     <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
                                                     Source="{Binding PlayPauseIconPath}"/> <!-- Play / pause icon -->
                                 </Button>
 
                                 <WrapPanel Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center">
-                                    <Button x:Name="Next" Style="{StaticResource PlayerIconButtonStyle}" 
+                                    <Button Style="{StaticResource PlayerIconButtonStyle}" 
                                             ToolTip="Next" Command="{Binding NextCommand}">
                                         <svg:SvgViewbox Style="{StaticResource PlayerIconStyle}" 
                                                         Source="Assets/Icons/Controls/next.svg"/> <!-- Next icon -->
                                     </Button>
 
                                     <Slider Width="90" Height="22" Margin="8,0,0,0"
-                                            Minimum="0" Maximum="1" Value="{Binding Volume, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            Minimum="0" Maximum="1" Value="{Binding Volume, Mode=TwoWay, 
+                                            UpdateSourceTrigger=PropertyChanged}" 
                                             IsMoveToPointEnabled="True" ToolTip="Volume"/>
                                 </WrapPanel>
                             </Grid>
@@ -216,7 +217,7 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Playlist view -->
-                        <ListView x:Name="LvPlayList" Grid.Column="0" ItemsSource="{Binding PlayList}"
+                        <ListView Grid.Column="0" ItemsSource="{Binding PlayList}"
                                   ItemTemplate="{StaticResource PlaylistItemTemplate}"
                                   SelectedItem="{Binding SelectedMedia, Mode=TwoWay}"
                                   MouseDoubleClick="PlayList_OnMouseDoubleClick">
@@ -240,10 +241,10 @@
                                 BorderThickness="1" CornerRadius="4">
                             <Grid>
                                 <MediaElement x:Name="Player" LoadedBehavior="Manual" UnloadedBehavior="Manual"/> <!-- Main playback surface -->
-                                <Image x:Name="ImageViewer"
-                                       Source="{Binding CurrentPlayingMedia.ImagePath}"
-                                       Visibility="{Binding IsImagePreviewVisible, Converter={StaticResource BoolToVisibility}}"
-                                       Stretch="Uniform"/>
+                                <Image
+                                    Source="{Binding CurrentPlayingMedia.ImagePath}"
+                                       Visibility="{Binding IsImagePreviewVisible, 
+                                       Converter={StaticResource BoolToVisibility}}" Stretch="Uniform"/>
                             </Grid>
                         </Border>
                     </Grid>

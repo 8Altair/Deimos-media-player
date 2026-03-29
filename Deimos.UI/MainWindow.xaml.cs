@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Windows;
 using System.Windows.Input; // Mouse button events
 
 using Deimos.UI.ViewModels;
@@ -19,8 +20,24 @@ public partial class MainWindow    // Connects partial logic from xaml file and 
         InitializeWindowChrome();
         _viewModel = new MainViewModel(Player); // Wire VM to playback controls
         DataContext = _viewModel; // Bind UI to view model
+        _viewModel.PropertyChanged += ViewModel_OnPropertyChangedForEditWindow;
+        Closed += MainWindow_OnClosed;
         InitializeSeekBarLogic();
         InitializeNowPlayingScroll(); // Enable title scrolling
+    }
+
+    private void MainWindow_OnClosed(object? sender, EventArgs e)
+    {
+        if (Application.Current is null)
+            return;
+
+        foreach (var window in Application.Current.Windows.OfType<Window>().ToList())
+        {
+            if (ReferenceEquals(window, this))
+                continue;
+
+            window.Close();
+        }
     }
 
     private void PlayList_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)

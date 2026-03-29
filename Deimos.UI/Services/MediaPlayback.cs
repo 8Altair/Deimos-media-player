@@ -11,11 +11,7 @@ namespace Deimos.UI.Services;
 
 public sealed class MediaPlayback
 {
-    private static readonly string[] AudioExtensions = [".mp3", ".flac", ".wav", ".wma", ".m4a"]; // Audio formats
-    private static readonly string[] VideoExtensions = [".mp4", ".avi", ".wmv"]; // Video formats
-    private static readonly string[] ImageExtensions = [".png", ".jpg", ".jpeg", ".gif"]; // Image formats
-
-    private const string MediaFolder = @"C:\Users\dinoa\OneDrive\Radna površina\Fakulteto\Treća godina\Drugi semestar\Interakcija čovjek-računar\Vježbe\Media player\Media";
+    private static readonly string MediaFolder = Path.Combine(AppContext.BaseDirectory, "Media");
     private const string FallbackAudioImage = "pack://application:,,,/Assets/Default_cover/Default.png"; // Default audio art
     private const string FallbackVideoImage = "pack://application:,,,/Assets/Default_cover/Default.png"; // Default video art
 
@@ -61,7 +57,7 @@ public sealed class MediaPlayback
             var extension = Path.GetExtension(filePath).ToLowerInvariant(); // Normalized extension
 
             // Images are added as viewable items without playback
-            if (ImageExtensions.Contains(extension))
+            if (MediaExtensions.ImageExtensions.Contains(extension))
             {
                 Debug.WriteLine($"Detected image file: {filePath}");
                 _playList.Add(new MediaFile
@@ -79,7 +75,7 @@ public sealed class MediaPlayback
             }
 
             // Skip files that are not audio or video
-            if (!AudioExtensions.Contains(extension) && !VideoExtensions.Contains(extension))
+            if (!MediaExtensions.AudioExtensions.Contains(extension) && !MediaExtensions.VideoExtensions.Contains(extension))
             {
                 Debug.WriteLine($"Skipping unsupported file: {filePath}");
                 continue;
@@ -100,7 +96,7 @@ public sealed class MediaPlayback
                 string imagePath; // Artwork path
 
                 // Audio files can have embedded artwork
-                if (AudioExtensions.Contains(extension))
+                if (MediaExtensions.AudioExtensions.Contains(extension))
                 {
                     imagePath = ExtractEmbeddedArtwork(tagFile, artworkCacheFolder, filePath) ?? FallbackAudioImage;
                 }
@@ -154,7 +150,7 @@ public sealed class MediaPlayback
 
         if (!sourceUri.IsAbsoluteUri)
         {
-            sourceUri = new Uri(Path.GetFullPath(selectedMedia.FilePath));  // Normalize to absolute path
+            sourceUri = new Uri(Path.GetFullPath(selectedMedia.FilePath)); // Normalize to absolute path
         }
 
         if (sourceUri.IsFile && !File.Exists(sourceUri.LocalPath))
@@ -165,13 +161,13 @@ public sealed class MediaPlayback
 
         Debug.WriteLine($"Resolved media source: {sourceUri}"); // Final source URI
         // Determine media type by file extension
-        var extension = Path.GetExtension(sourceUri.IsFile ? sourceUri.LocalPath 
-            : selectedMedia.FilePath).ToLowerInvariant();  // Normalized extension
+        var extension = Path.GetExtension(sourceUri.IsFile ? sourceUri.LocalPath
+            : selectedMedia.FilePath).ToLowerInvariant(); // Normalized extension
 
         // Images are shown in the right-side viewer
-        if (ImageExtensions.Contains(extension))
+        if (MediaExtensions.ImageExtensions.Contains(extension))
         {
-            _player.Visibility = Visibility.Collapsed;  // Hide player surface
+            _player.Visibility = Visibility.Collapsed; // Hide player surface
 
             try
             {
@@ -191,7 +187,7 @@ public sealed class MediaPlayback
             }
         }
 
-        if (!AudioExtensions.Contains(extension) && !VideoExtensions.Contains(extension))
+        if (!MediaExtensions.AudioExtensions.Contains(extension) && !MediaExtensions.VideoExtensions.Contains(extension))
         {
             Debug.WriteLine($"Unsupported media type selected: {selectedMedia.FilePath}");
             return;
@@ -201,7 +197,7 @@ public sealed class MediaPlayback
         {
             Debug.WriteLine($"Starting playback: {selectedMedia.FilePath}");
             // Audio uses cover art; video uses the media element only
-            if (AudioExtensions.Contains(extension))
+            if (MediaExtensions.AudioExtensions.Contains(extension))
             {
                 _player.Visibility = Visibility.Visible;
             }
@@ -265,7 +261,8 @@ public sealed class MediaPlayback
         _isPlaying = false;
         if (_currentlyPlaying is not null)
         {
-            _updateNowPlaying($"Paused: {_currentlyPlaying.Title ?? Path.GetFileNameWithoutExtension(_currentlyPlaying.FilePath)}");
+            _updateNowPlaying($"Paused: {_currentlyPlaying.Title ?? 
+                                         Path.GetFileNameWithoutExtension(_currentlyPlaying.FilePath)}");
         }
     }
 
@@ -285,7 +282,30 @@ public sealed class MediaPlayback
         _isPlaying = false;
         if (_currentlyPlaying is not null)
         {
-            _updateNowPlaying($"Stopped: {_currentlyPlaying.Title ?? Path.GetFileNameWithoutExtension(_currentlyPlaying.FilePath)}");
+            _updateNowPlaying($"Stopped: {_currentlyPlaying.Title ?? 
+                                          Path.GetFileNameWithoutExtension(_currentlyPlaying.FilePath)}");
+        }
+    }
+
+    /// <summary>
+    /// Stops playback and clears the playback surface.
+    /// </summary>
+    public void StopAndClear()
+    {
+        Debug.WriteLine("Stopping and clearing playback surface");
+        if (_player.Source is not null)
+        {
+            _player.Stop();
+        }
+
+        _player.Source = null;
+        _player.Visibility = Visibility.Visible;
+        _isPlaying = false;
+
+        if (_currentlyPlaying is not null)
+        {
+            _currentlyPlaying.IsPlaying = false;
+            _currentlyPlaying = null;
         }
     }
 
