@@ -643,7 +643,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
         if (Uri.TryCreate(path, UriKind.RelativeOrAbsolute, out var uri))
         {
-            var uriPath = uri.IsFile ? uri.LocalPath : uri.AbsolutePath;
+            var uriPath = uri.IsAbsoluteUri
+                ? (uri.IsFile ? uri.LocalPath : uri.AbsolutePath)
+                : uri.OriginalString;
             return Path.GetExtension(uriPath).ToLowerInvariant();
         }
 

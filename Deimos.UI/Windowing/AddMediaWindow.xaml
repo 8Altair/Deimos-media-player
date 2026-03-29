@@ -160,7 +160,7 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBox x:Name="FilePathTextBox" Grid.Column="0" MinHeight="28" Margin="0,0,8,0"
-                                     Style="{StaticResource FormTextBoxStyle}"/>
+                                     Style="{StaticResource FormTextBoxStyle}" TextChanged="FilePathTextBox_OnTextChanged"/>
                             <Button Grid.Column="1" Width="90" MinHeight="28" Content="Browse..."
                                     Style="{StaticResource FormButtonStyle}" Click="BrowseFile_OnClick"/>
                         </Grid>

@@ -37,7 +37,13 @@ public partial class MainWindow
             WindowStartupLocation = WindowStartupLocation.CenterOwner
         };
 
-        addWindow.ShowDialog();
+        var saved = addWindow.ShowDialog() == true;
+        if (!saved || !addWindow.StartPlaybackAfterSave || addWindow.AddedMedia is null)
+            return;
+
+        _viewModel.SelectedMedia = addWindow.AddedMedia;
+        if (_viewModel.PlaySelectedCommand.CanExecute(null))
+            _viewModel.PlaySelectedCommand.Execute(null);
     }
 
     /// <summary>

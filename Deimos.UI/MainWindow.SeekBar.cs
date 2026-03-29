@@ -127,8 +127,22 @@ public partial class MainWindow
             return;
         }
 
+        var effectiveDuration = GetEffectivePlaybackDuration(naturalDuration.TimeSpan);
+        _seekBar.SetRange(0, Math.Max(1, effectiveDuration.TotalSeconds));
+        if (Player.Position >= effectiveDuration)
+        {
+            Player.Position = effectiveDuration;
+            _seekBar.SetValue(effectiveDuration.TotalSeconds);
+            UpdateTimeLabels(effectiveDuration, effectiveDuration);
+            UpdateSeekBarVisual();
+            _seekBarTimer.Stop();
+            _viewModel.NotifyPlaybackEnded();
+            _viewModel.HandleMediaEnded();
+            return;
+        }
+
         _seekBar.SetValue(Player.Position.TotalSeconds);
-        UpdateTimeLabels(Player.Position, naturalDuration.TimeSpan);
+        UpdateTimeLabels(Player.Position, effectiveDuration);
         UpdateSeekBarVisual();
     }
 
@@ -150,10 +164,11 @@ public partial class MainWindow
         if (Player.Source is null || !naturalDuration.HasTimeSpan)
             return;
 
-        var mediaSeconds = _seekBar.GetValue();
+        var effectiveDuration = GetEffectivePlaybackDuration(naturalDuration.TimeSpan);
+        var mediaSeconds = Math.Min(_seekBar.GetValue(), effectiveDuration.TotalSeconds);
         Player.Position = TimeSpan.FromSeconds(mediaSeconds);
         Debug.WriteLine($"MainWindow: Player position updated to {Player.Position}.");
-        UpdateTimeLabels(Player.Position, naturalDuration.TimeSpan);
+        UpdateTimeLabels(Player.Position, effectiveDuration);
     }
 
     private void Player_OnMediaOpened(object? sender, RoutedEventArgs e)
@@ -169,10 +184,11 @@ public partial class MainWindow
             return;
         }
 
-        var durationSeconds = Player.NaturalDuration.TimeSpan.TotalSeconds;
+        var effectiveDuration = GetEffectivePlaybackDuration(Player.NaturalDuration.TimeSpan);
+        var durationSeconds = Math.Max(1, effectiveDuration.TotalSeconds);
         _seekBar.SetRange(0, durationSeconds);
         _seekBar.SetValue(0);
-        UpdateTimeLabels(TimeSpan.Zero, Player.NaturalDuration.TimeSpan);
+        UpdateTimeLabels(TimeSpan.Zero, effectiveDuration);
         UpdateSeekBarVisual();
         _seekBarTimer.Start();
         UpdateSeekBarMode();
@@ -251,6 +267,15 @@ public partial class MainWindow
     {
         CurrentTimeLabel.Content = current.ToString(@"hh\:mm\:ss");
         TotalTimeLabel.Content = total.ToString(@"hh\:mm\:ss");
+    }
+
+    private TimeSpan GetEffectivePlaybackDuration(TimeSpan naturalDuration)
+    {
+        var configuredDuration = _viewModel.CurrentPlayingMedia?.Duration ?? TimeSpan.Zero;
+        if (configuredDuration <= TimeSpan.Zero || configuredDuration > naturalDuration)
+            return naturalDuration;
+
+        return configuredDuration;
     }
 
     /// <summary>

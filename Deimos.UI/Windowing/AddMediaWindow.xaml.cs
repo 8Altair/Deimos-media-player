@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 using Microsoft.Win32;
@@ -15,6 +16,8 @@ public partial class AddMediaWindow
 {
     private const string DefaultCoverPath = "pack://application:,,,/Assets/Default_cover/Default.png";
     private readonly ObservableCollection<MediaFile> _playList;
+    public MediaFile? AddedMedia { get; private set; }
+    public bool StartPlaybackAfterSave { get; private set; }
 
     /// <summary>
     /// Initializes the add-media dialog with the shared playlist reference.
@@ -23,6 +26,7 @@ public partial class AddMediaWindow
     {
         _playList = playList;   // Reuse the live playlist collection
         InitializeComponent();
+        UpdateDurationInputState();
         Debug.WriteLine("AddMediaWindow initialized.");
     }
 
@@ -44,6 +48,11 @@ public partial class AddMediaWindow
                 MediaExtensions.ImageExtensions.Contains(extension))
                 ImagePathTextBox.Text = dialog.FileName;
         }
+    }
+
+    private void FilePathTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+    {
+        UpdateDurationInputState();
     }
 
     private void ImagePreview_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -108,6 +117,8 @@ public partial class AddMediaWindow
         }
 
         _playList.Add(mediaFile);   // Add the new item directly to the live playlist
+        AddedMedia = mediaFile;
+        StartPlaybackAfterSave = IsPlayingCheckBox.IsChecked == true;
         Debug.WriteLine($"AddMediaWindow added: {mediaFile.Title}");
         DialogResult = true;
         Close();
@@ -124,8 +135,6 @@ public partial class AddMediaWindow
         var durationText = DurationTextBox.Text.Trim();
         var artist = ArtistTextBox.Text.Trim();
         var album = AlbumTextBox.Text.Trim();
-        var isPlaying = IsPlayingCheckBox.IsChecked == true;    // Optional initial state
-
         if (string.IsNullOrWhiteSpace(title))
         {
             errorMessage = "Title is required.";
@@ -154,7 +163,8 @@ public partial class AddMediaWindow
             return false;
         }
 
-        if (Uri.TryCreate(filePath, UriKind.RelativeOrAbsolute, out var fileUri) && fileUri.IsFile)
+        if (Uri.TryCreate(filePath, UriKind.RelativeOrAbsolute, out var fileUri) &&
+            fileUri.IsAbsoluteUri && fileUri.IsFile)
         {
             if (!File.Exists(fileUri.LocalPath))
             {
@@ -173,10 +183,34 @@ public partial class AddMediaWindow
         var duration = TimeSpan.Zero;   // Images have no duration
         if (!MediaExtensions.ImageExtensions.Contains(extension))
         {
-            if (!string.IsNullOrWhiteSpace(durationText) &&
-                !TimeSpan.TryParse(durationText, out duration))
+            if (!TryGetActualDuration(filePath, out var actualDuration, out var durationError))
+            {
+                errorMessage = durationError;
+                mediaFile = null!;
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(durationText))
+            {
+                duration = actualDuration;
+            }
+            else if (!TimeSpan.TryParse(durationText, out duration))
             {
                 errorMessage = "Duration must be in hh:mm:ss format.";
+                mediaFile = null!;
+                return false;
+            }
+
+            if (duration <= TimeSpan.Zero)
+            {
+                errorMessage = "Duration must be greater than 00:00:00.";
+                mediaFile = null!;
+                return false;
+            }
+
+            if (duration > actualDuration)
+            {
+                errorMessage = "Duration cannot be longer than the media file duration.";
                 mediaFile = null!;
                 return false;
             }
@@ -204,7 +238,7 @@ public partial class AddMediaWindow
             Duration = duration,
             Artist = string.IsNullOrWhiteSpace(artist) ? null : artist,
             Album = string.IsNullOrWhiteSpace(album) ? null : album,
-            IsPlaying = isPlaying
+            IsPlaying = false
         };
 
         errorMessage = string.Empty;
@@ -219,7 +253,9 @@ public partial class AddMediaWindow
         extension = string.Empty;
         if (Uri.TryCreate(path, UriKind.RelativeOrAbsolute, out var uri))
         {
-            var uriPath = uri.IsFile ? uri.LocalPath : uri.AbsolutePath;
+            var uriPath = uri.IsAbsoluteUri
+                ? (uri.IsFile ? uri.LocalPath : uri.AbsolutePath)
+                : uri.OriginalString;
             extension = Path.GetExtension(uriPath).ToLowerInvariant();
             return !string.IsNullOrWhiteSpace(extension);
         }
@@ -236,5 +272,42 @@ public partial class AddMediaWindow
         return MediaExtensions.AudioExtensions.Contains(extension) ||
                MediaExtensions.VideoExtensions.Contains(extension) ||
                MediaExtensions.ImageExtensions.Contains(extension);
+    }
+
+    private void UpdateDurationInputState()
+    {
+        var isImage = IsImagePath(FilePathTextBox.Text);
+        DurationTextBox.IsEnabled = !isImage;
+        if (isImage)
+            DurationTextBox.Text = "00:00:00";
+    }
+
+    private static bool IsImagePath(string path)
+    {
+        if (!TryResolveExtension(path.Trim(), out var extension))
+            return false;
+
+        return MediaExtensions.ImageExtensions.Contains(extension);
+    }
+
+    private static bool TryGetActualDuration(string filePath, out TimeSpan duration, out string errorMessage)
+    {
+        duration = TimeSpan.Zero;
+        errorMessage = string.Empty;
+        try
+        {
+            using var tagFile = TagLib.File.Create(filePath);
+            duration = tagFile.Properties.Duration;
+            if (duration > TimeSpan.Zero)
+                return true;
+
+            errorMessage = "Unable to read media duration from the selected file.";
+            return false;
+        }
+        catch (Exception)
+        {
+            errorMessage = "Unable to read media duration from the selected file.";
+            return false;
+        }
     }
 }

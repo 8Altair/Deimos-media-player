@@ -161,7 +161,7 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBox x:Name="FilePathTextBox" Grid.Column="0" MinHeight="28" Margin="0,0,8,0"
-                                     Style="{StaticResource FormTextBoxStyle}"/>
+                                     Style="{StaticResource FormTextBoxStyle}" TextChanged="FilePathTextBox_OnTextChanged"/>
                             <Button Grid.Column="1" Width="90" MinHeight="28" Content="Browse..."
                                     Style="{StaticResource FormButtonStyle}" Click="BrowseFile_OnClick"/>
                         </Grid>
@@ -189,7 +189,7 @@
                         <TextBlock Grid.Row="7" Grid.Column="0" Margin="0,6,12,6" VerticalAlignment="Center" 
                                    Text="Is playing"/>
                         <CheckBox x:Name="IsPlayingCheckBox" Grid.Row="7" Grid.Column="1" Margin="0,6" 
-                                  VerticalAlignment="Center"/>
+                                  VerticalAlignment="Center" IsEnabled="False"/>
 
                         <StackPanel Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" 
                                     HorizontalAlignment="Right">
