@@ -105,6 +105,7 @@ public partial class EditMediaWindow
 
         Debug.WriteLine($"EditMediaWindow saved updates for: {_mediaFile.Title}");
         ApplyMediaToForm(_mediaFile);
+        Close();
     }
 
     /// <summary>
