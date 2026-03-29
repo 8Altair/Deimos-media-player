@@ -23,6 +23,7 @@ public partial class EditMediaWindow
         _mediaFile = mediaFile;
         DataContext = mediaFile;
         ApplyMediaToForm(mediaFile);
+        HideSaveStatus();
         Debug.WriteLine($"EditMediaWindow updated to: {mediaFile?.Title ?? "(none)"}");
     }
 
@@ -33,6 +34,7 @@ public partial class EditMediaWindow
     {
         InitializeComponent();
         Closing += EditMediaWindow_OnClosing;
+        RegisterStatusResetHandlers();
         UpdateMedia(mediaFile);
         Debug.WriteLine($"EditMediaWindow opened for: {mediaFile.Title}");
     }
@@ -128,7 +130,7 @@ public partial class EditMediaWindow
 
         Debug.WriteLine($"EditMediaWindow saved updates for: {_mediaFile.Title}");
         ApplyMediaToForm(_mediaFile);
-        Close();
+        ShowSaveStatus("Changes saved");
     }
 
     /// <summary>
@@ -277,6 +279,29 @@ public partial class EditMediaWindow
         ArtistTextBox.Text = mediaFile?.Artist ?? string.Empty;
         AlbumTextBox.Text = mediaFile?.Album ?? string.Empty;
         IsPlayingCheckBox.IsChecked = mediaFile?.IsPlaying ?? false;
+    }
+
+    private void RegisterStatusResetHandlers()
+    {
+        TitleTextBox.TextChanged += (_, _) => HideSaveStatus();
+        FilePathTextBox.TextChanged += (_, _) => HideSaveStatus();
+        ImagePathTextBox.TextChanged += (_, _) => HideSaveStatus();
+        DurationTextBox.TextChanged += (_, _) => HideSaveStatus();
+        ArtistTextBox.TextChanged += (_, _) => HideSaveStatus();
+        AlbumTextBox.TextChanged += (_, _) => HideSaveStatus();
+        IsPlayingCheckBox.Checked += (_, _) => HideSaveStatus();
+        IsPlayingCheckBox.Unchecked += (_, _) => HideSaveStatus();
+    }
+
+    private void ShowSaveStatus(string message)
+    {
+        SaveStatusText.Text = message;
+        SaveStatusText.Visibility = Visibility.Visible;
+    }
+
+    private void HideSaveStatus()
+    {
+        SaveStatusText.Visibility = Visibility.Collapsed;
     }
 
     private bool HasUnsavedChanges()

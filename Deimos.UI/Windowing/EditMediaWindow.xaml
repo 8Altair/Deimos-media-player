@@ -2,9 +2,9 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Edit Media"
-        Width="520"
-        MinWidth="480"
-        MinHeight="420"
+        Width="530"
+        MinWidth="530"
+        MinHeight="430"
         Background="{StaticResource WindowBackgroundBrush}"
         Foreground="{StaticResource PrimaryTextBrush}"
         WindowStartupLocation="CenterScreen"
@@ -120,7 +120,6 @@
             </Border>
 
             <Border Grid.Row="1" Margin="12" Style="{StaticResource SectionBorderStyle}">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <Grid Margin="12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="140"/>
@@ -136,6 +135,7 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="16"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
@@ -198,8 +198,17 @@
                             <Button Width="90" Height="32" Content="Save" IsDefault="True" Click="Save_OnClick"
                                     Style="{StaticResource FormButtonStyle}"/>
                         </StackPanel>
+
+                        <TextBlock x:Name="SaveStatusText"
+                                   Grid.Row="10"
+                                   Grid.Column="0"
+                                   Grid.ColumnSpan="2"
+                                   Margin="0,6,0,0"
+                                   HorizontalAlignment="Right"
+                                   Foreground="{StaticResource AccentBrush}"
+                                   Text="Saved"
+                                   Visibility="Collapsed"/>
                     </Grid>
-                </ScrollViewer>
             </Border>
         </Grid>
     </Border>
