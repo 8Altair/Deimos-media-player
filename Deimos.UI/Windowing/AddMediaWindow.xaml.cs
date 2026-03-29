@@ -38,7 +38,24 @@ public partial class AddMediaWindow
         };
 
         if (dialog.ShowDialog(this) == true)    // Only proceed when the dialog completes successfully
+        {
             FilePathTextBox.Text = dialog.FileName; // Populate the chosen file path
+            if (TryResolveExtension(dialog.FileName, out var extension) &&
+                MediaExtensions.ImageExtensions.Contains(extension))
+                ImagePathTextBox.Text = dialog.FileName;
+        }
+    }
+
+    private void ImagePreview_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        var dialog = new OpenFileDialog
+        {
+            Filter = BuildImageFilter(),
+            Multiselect = false
+        };
+
+        if (dialog.ShowDialog(this) == true)
+            ImagePathTextBox.Text = dialog.FileName;
     }
 
     /// <summary>
@@ -52,6 +69,12 @@ public partial class AddMediaWindow
         var all = string.Join(";", audio, video, images);   // Combined filter entry
 
         return $"All supported media|{all}|Audio files|{audio}|Video files|{video}|Image files|{images}|All files|*.*";
+    }
+
+    private static string BuildImageFilter()
+    {
+        var images = string.Join(";", MediaExtensions.ImageExtensions.Select(ext => $"*{ext}"));
+        return $"Image files|{images}|All files|*.*";
     }
 
     /// <summary>
