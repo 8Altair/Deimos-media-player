@@ -15,8 +15,6 @@ public sealed class MainViewModel : INotifyPropertyChanged
 {
     private const string StaticImageUri = "pack://application:,,,/Assets/Default_cover/Default.png"; // Default image resource
     private const double ShuffleImageDurationSeconds = 5; // Shuffle image display length
-    private static readonly string[] ImageExtensions = [".png", ".jpg", ".jpeg", ".gif"]; // Image formats for shuffle preview
-    private static readonly string[] VideoExtensions = [".mp4", ".avi", ".wmv"]; // Video formats for preview visibility
     private readonly MediaPlayback _mediaPlayback; // Playback service instance
     private readonly Random _random = new(); // Shuffle source
     private readonly DispatcherTimer _shuffleImageTimer = new()
@@ -606,7 +604,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private static bool IsImageMedia(MediaFile mediaFile)
     {
         var extension = GetExtension(mediaFile.FilePath ?? mediaFile.ImagePath);
-        return ImageExtensions.Contains(extension);
+        return MediaExtensions.ImageExtensions.Contains(extension);
     }
 
     /// <summary>
@@ -615,7 +613,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private static bool IsVideoMedia(MediaFile mediaFile)
     {
         var extension = GetExtension(mediaFile.FilePath ?? mediaFile.ImagePath);
-        return VideoExtensions.Contains(extension);
+        return MediaExtensions.VideoExtensions.Contains(extension);
     }
 
     /// <summary>

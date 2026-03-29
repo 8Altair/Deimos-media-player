@@ -88,7 +88,7 @@
                         <MenuItem Header="Add static" Command="{Binding AddStaticCommand}"/>
                         <MenuItem Header="Edit static" Command="{Binding EditStaticCommand}"/>
                         <Separator/> <!-- Visual separation between static and dynamic options -->
-                        <MenuItem Header="Add"/>
+                        <MenuItem Header="Add" Click="AddMenu_Click"/>
                         <MenuItem Header="Edit"/>
                         <MenuItem Header="Remove" Command="{Binding RemoveSelectedCommand}"/>
                     </MenuItem>
