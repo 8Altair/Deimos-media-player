@@ -42,6 +42,9 @@ public partial class EditMediaWindow
         Debug.WriteLine($"EditMediaWindow opened for: {mediaFile.Title}");
     }
 
+    /// <summary>
+    /// Opens the file picker and fills the file path field.
+    /// </summary>
     private void BrowseFile_OnClick(object sender, RoutedEventArgs e)
     {
         var dialog = new OpenFileDialog
@@ -59,6 +62,9 @@ public partial class EditMediaWindow
         }
     }
 
+    /// <summary>
+    /// Opens the image picker and fills the image path field.
+    /// </summary>
     private void ImagePreview_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         var dialog = new OpenFileDialog
@@ -71,11 +77,17 @@ public partial class EditMediaWindow
             ImagePathTextBox.Text = dialog.FileName;
     }
 
+    /// <summary>
+    /// Refreshes the duration input state when the media path changes.
+    /// </summary>
     private void FilePathTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
     {
         UpdateDurationInputState();
     }
 
+    /// <summary>
+    /// Builds the OpenFileDialog filter from supported media extensions.
+    /// </summary>
     private static string BuildMediaFilter()
     {
         var audio = string.Join(";", MediaExtensions.AudioExtensions.Select(ext => $"*{ext}"));
@@ -86,12 +98,18 @@ public partial class EditMediaWindow
         return $"All supported media|{all}|Audio files|{audio}|Video files|{video}|Image files|{images}|All files|*.*";
     }
 
+    /// <summary>
+    /// Builds the OpenFileDialog filter for supported image extensions.
+    /// </summary>
     private static string BuildImageFilter()
     {
         var images = string.Join(";", MediaExtensions.ImageExtensions.Select(ext => $"*{ext}"));
         return $"Image files|{images}|All files|*.*";
     }
 
+    /// <summary>
+    /// Resolves a file extension from a path or URI.
+    /// </summary>
     private static bool TryResolveExtension(string path, out string extension)
     {
         extension = string.Empty;
@@ -298,6 +316,9 @@ public partial class EditMediaWindow
         Close();
     }
 
+    /// <summary>
+    /// Warns before closing when the form contains unsaved changes.
+    /// </summary>
     private void EditMediaWindow_OnClosing(object? sender, CancelEventArgs e)
     {
         if (!HasUnsavedChanges())
@@ -324,6 +345,9 @@ public partial class EditMediaWindow
         IsPlayingCheckBox.IsChecked = mediaFile?.IsPlaying ?? false;
     }
 
+    /// <summary>
+    /// Hides the save confirmation whenever a form value changes.
+    /// </summary>
     private void RegisterStatusResetHandlers()
     {
         TitleTextBox.TextChanged += (_, _) => HideSaveStatus();
@@ -336,17 +360,26 @@ public partial class EditMediaWindow
         IsPlayingCheckBox.Unchecked += (_, _) => HideSaveStatus();
     }
 
+    /// <summary>
+    /// Displays the inline save confirmation message.
+    /// </summary>
     private void ShowSaveStatus(string message)
     {
         SaveStatusText.Text = message;
         SaveStatusText.Visibility = Visibility.Visible;
     }
 
+    /// <summary>
+    /// Hides the inline save confirmation message.
+    /// </summary>
     private void HideSaveStatus()
     {
         SaveStatusText.Visibility = Visibility.Collapsed;
     }
 
+    /// <summary>
+    /// Enables or disables the duration input depending on the selected media type.
+    /// </summary>
     private void UpdateDurationInputState()
     {
         var isImage = IsImagePath(FilePathTextBox.Text);
@@ -355,6 +388,9 @@ public partial class EditMediaWindow
             DurationTextBox.Text = "00:00:00";
     }
 
+    /// <summary>
+    /// Returns true when the current file path points to an image format.
+    /// </summary>
     private static bool IsImagePath(string path)
     {
         if (!TryResolveExtension(path.Trim(), out var extension))
@@ -363,6 +399,9 @@ public partial class EditMediaWindow
         return MediaExtensions.ImageExtensions.Contains(extension);
     }
 
+    /// <summary>
+    /// Checks whether the image path points to an existing file or embedded resource.
+    /// </summary>
     private static bool ImagePathExists(string imagePath)
     {
         if (imagePath.StartsWith("pack://", StringComparison.OrdinalIgnoreCase))
@@ -377,6 +416,9 @@ public partial class EditMediaWindow
         return Path.IsPathRooted(imagePath) && File.Exists(imagePath);
     }
 
+    /// <summary>
+    /// Reads the real media duration from the selected file.
+    /// </summary>
     private static bool TryGetActualDuration(string filePath, out TimeSpan duration, out string errorMessage)
     {
         duration = TimeSpan.Zero;
@@ -398,6 +440,9 @@ public partial class EditMediaWindow
         }
     }
 
+    /// <summary>
+    /// Returns true when the form contains values that differ from the selected media item.
+    /// </summary>
     private bool HasUnsavedChanges()
     {
         if (_mediaFile is null)

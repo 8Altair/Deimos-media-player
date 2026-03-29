@@ -50,11 +50,17 @@ public partial class AddMediaWindow
         }
     }
 
+    /// <summary>
+    /// Refreshes the duration input state when the media path changes.
+    /// </summary>
     private void FilePathTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
     {
         UpdateDurationInputState();
     }
 
+    /// <summary>
+    /// Opens the image picker and fills the image path field.
+    /// </summary>
     private void ImagePreview_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         var dialog = new OpenFileDialog
@@ -80,6 +86,9 @@ public partial class AddMediaWindow
         return $"All supported media|{all}|Audio files|{audio}|Video files|{video}|Image files|{images}|All files|*.*";
     }
 
+    /// <summary>
+    /// Builds the OpenFileDialog filter for supported image extensions.
+    /// </summary>
     private static string BuildImageFilter()
     {
         var images = string.Join(";", MediaExtensions.ImageExtensions.Select(ext => $"*{ext}"));
@@ -278,6 +287,9 @@ public partial class AddMediaWindow
                MediaExtensions.ImageExtensions.Contains(extension);
     }
 
+    /// <summary>
+    /// Enables or disables the duration input depending on the selected media type.
+    /// </summary>
     private void UpdateDurationInputState()
     {
         var isImage = IsImagePath(FilePathTextBox.Text);
@@ -286,6 +298,9 @@ public partial class AddMediaWindow
             DurationTextBox.Text = "00:00:00";
     }
 
+    /// <summary>
+    /// Returns true when the current file path points to an image format.
+    /// </summary>
     private static bool IsImagePath(string path)
     {
         if (!TryResolveExtension(path.Trim(), out var extension))
@@ -294,6 +309,9 @@ public partial class AddMediaWindow
         return MediaExtensions.ImageExtensions.Contains(extension);
     }
 
+    /// <summary>
+    /// Checks whether the image path points to an existing file or embedded resource.
+    /// </summary>
     private static bool ImagePathExists(string imagePath)
     {
         if (imagePath.StartsWith("pack://", StringComparison.OrdinalIgnoreCase))
@@ -308,6 +326,9 @@ public partial class AddMediaWindow
         return Path.IsPathRooted(imagePath) && File.Exists(imagePath);
     }
 
+    /// <summary>
+    /// Reads the real media duration from the selected file.
+    /// </summary>
     private static bool TryGetActualDuration(string filePath, out TimeSpan duration, out string errorMessage)
     {
         duration = TimeSpan.Zero;

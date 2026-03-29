@@ -88,12 +88,18 @@ public partial class MainWindow
         }
     }
 
+    /// <summary>
+    /// Updates the edit window when the selected media changes in the view model.
+    /// </summary>
     private void ViewModel_OnPropertyChangedForEditWindow(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(ViewModels.MainViewModel.SelectedMedia))
             UpdateEditWindowSelection();
     }
 
+    /// <summary>
+    /// Pushes the current selection into the open edit window.
+    /// </summary>
     private void UpdateEditWindowSelection()
     {
         if (_editWindow is null || !_editWindow.IsVisible)
