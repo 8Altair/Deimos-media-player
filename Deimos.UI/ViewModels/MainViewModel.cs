@@ -99,6 +99,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 _selectedMedia = value;
                 Debug.WriteLine($"Selected media changed: {_selectedMedia}");
                 OnPropertyChanged(nameof(SelectedMedia));
+                OnPropertyChanged(nameof(HasSelectedMedia));
                 // Refresh command availability when selection changes
                 PlaySelectedCommand.RaiseCanExecuteChanged();
                 PlayPauseCommand.RaiseCanExecuteChanged();
@@ -182,6 +183,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     public bool IsShuffleImageActive => IsShuffleEnabled && CurrentPlayingMedia is not null &&
                                         IsImageMedia(CurrentPlayingMedia);
+
+    public bool HasSelectedMedia => SelectedMedia is not null;
 
     public bool IsImagePreviewVisible
     {

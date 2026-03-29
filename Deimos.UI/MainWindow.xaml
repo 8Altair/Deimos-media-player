@@ -88,7 +88,8 @@
                         <MenuItem Header="Edit static" Command="{Binding EditStaticCommand}"/>
                         <Separator/> <!-- Visual separation between static and dynamic options -->
                         <MenuItem Header="Add" Click="AddMenu_Click"/>
-                        <MenuItem Header="Edit" Click="EditMenu_Click"/>
+                        <MenuItem Header="Edit" Click="EditMenu_Click"
+                                  IsEnabled="{Binding HasSelectedMedia}"/>
                         <MenuItem Header="Remove" Command="{Binding RemoveSelectedCommand}"/>
                     </MenuItem>
                 </Menu>
