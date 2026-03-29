@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -9,6 +10,8 @@ namespace Deimos.UI;
 
 public partial class MainWindow
 {
+    private EditMediaWindow? _editWindow;
+
     /// <summary>
     /// Event handler for clicking Exit.
     /// sender = control that triggered the event, e = event data for this routed event.
@@ -52,12 +55,34 @@ public partial class MainWindow
             return;
         }
 
-        var editWindow = new EditMediaWindow(_viewModel.SelectedMedia)
+        if (_editWindow is null || !_editWindow.IsVisible)
         {
-            Owner = this,
-            WindowStartupLocation = WindowStartupLocation.CenterOwner
-        };
+            _editWindow = new EditMediaWindow(_viewModel.SelectedMedia)
+            {
+                Owner = this,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner
+            };
 
-        editWindow.Show();
+            _editWindow.Closed += (_, _) => _editWindow = null;
+            _editWindow.Show();
+            return;
+        }
+
+        _editWindow.UpdateMedia(_viewModel.SelectedMedia);
+        _editWindow.Activate();
+    }
+
+    private void ViewModel_OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(MainViewModel.SelectedMedia))
+            UpdateEditWindowSelection();
+    }
+
+    private void UpdateEditWindowSelection()
+    {
+        if (_editWindow is null || !_editWindow.IsVisible)
+            return;
+
+        _editWindow.UpdateMedia(_viewModel.SelectedMedia);
     }
 }

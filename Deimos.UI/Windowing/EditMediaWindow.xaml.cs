@@ -7,15 +7,24 @@ using Deimos.UI.Models;
 
 namespace Deimos.UI.Windowing;
 
-public partial class EditMediaWindow
+public partial class EditMediaWindow : Window
 {
+    /// <summary>
+    /// Updates the dialog bindings to the currently selected media item.
+    /// </summary>
+    public void UpdateMedia(MediaFile? mediaFile)
+    {
+        DataContext = mediaFile;
+        Debug.WriteLine($"EditMediaWindow updated to: {mediaFile?.Title ?? "(none)"}");
+    }
+
     /// <summary>
     /// Initializes the edit dialog and binds to the selected media item.
     /// </summary>
     public EditMediaWindow(MediaFile mediaFile)
     {
         InitializeComponent();
-        DataContext = mediaFile;
+        UpdateMedia(mediaFile);
         Debug.WriteLine($"EditMediaWindow opened for: {mediaFile.Title}");
     }
 

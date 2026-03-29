@@ -19,6 +19,7 @@ public partial class MainWindow    // Connects partial logic from xaml file and 
         InitializeWindowChrome();
         _viewModel = new MainViewModel(Player); // Wire VM to playback controls
         DataContext = _viewModel; // Bind UI to view model
+        _viewModel.PropertyChanged += ViewModel_OnPropertyChanged;
         InitializeSeekBarLogic();
         InitializeNowPlayingScroll(); // Enable title scrolling
     }
