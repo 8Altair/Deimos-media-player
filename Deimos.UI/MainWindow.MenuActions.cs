@@ -59,8 +59,10 @@ public partial class MainWindow
         {
             _editWindow = new EditMediaWindow(_viewModel.SelectedMedia)
             {
-                Owner = this,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner
+                Owner = null,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                ShowInTaskbar = true,
+                Topmost = false
             };
 
             _editWindow.Closed += (_, _) => _editWindow = null;
@@ -72,9 +74,9 @@ public partial class MainWindow
         _editWindow.Activate();
     }
 
-    private void ViewModel_OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void ViewModel_OnPropertyChangedForEditWindow(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(MainViewModel.SelectedMedia))
+        if (e.PropertyName == nameof(ViewModels.MainViewModel.SelectedMedia))
             UpdateEditWindowSelection();
     }
 
