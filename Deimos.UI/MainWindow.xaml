@@ -5,7 +5,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
-        xmlns:conv="clr-namespace:Deimos.UI.Converters"
         mc:Ignorable="d"
         Title="Deimos"
         WindowState="Maximized"
@@ -19,7 +18,6 @@
     
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
-        <conv:NullToBoolConverter x:Key="NullToBoolConverter"/>
     </Window.Resources>
 
     <shell:WindowChrome.WindowChrome>
@@ -90,8 +88,7 @@
                         <MenuItem Header="Edit static" Command="{Binding EditStaticCommand}"/>
                         <Separator/> <!-- Visual separation between static and dynamic options -->
                         <MenuItem Header="Add" Click="AddMenu_Click"/>
-                        <MenuItem Header="Edit" Click="EditMenu_Click"
-                                  IsEnabled="{Binding SelectedMedia, Converter={StaticResource NullToBoolConverter}}"/>
+                        <MenuItem Header="Edit" Click="EditMenu_Click"/>
                         <MenuItem Header="Remove" Command="{Binding RemoveSelectedCommand}"/>
                     </MenuItem>
                 </Menu>
