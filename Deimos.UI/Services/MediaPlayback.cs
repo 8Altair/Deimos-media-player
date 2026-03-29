@@ -288,6 +288,28 @@ public sealed class MediaPlayback
     }
 
     /// <summary>
+    /// Stops playback and clears the playback surface.
+    /// </summary>
+    public void StopAndClear()
+    {
+        Debug.WriteLine("Stopping and clearing playback surface");
+        if (_player.Source is not null)
+        {
+            _player.Stop();
+        }
+
+        _player.Source = null;
+        _player.Visibility = Visibility.Visible;
+        _isPlaying = false;
+
+        if (_currentlyPlaying is not null)
+        {
+            _currentlyPlaying.IsPlaying = false;
+            _currentlyPlaying = null;
+        }
+    }
+
+    /// <summary>
     /// Updates the playback volume on the media element.
     /// </summary>
     public void SetVolume(double volume)

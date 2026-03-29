@@ -681,8 +681,20 @@ public sealed class MainViewModel : INotifyPropertyChanged
             return;
         }
 
-        var removedTitle = SelectedMedia.Title ?? "(Untitled)";
-        PlayList.Remove(SelectedMedia);
+        var mediaToRemove = SelectedMedia;
+        var removedTitle = mediaToRemove.Title ?? "(Untitled)";
+        var removedCurrentlyPlaying = ReferenceEquals(mediaToRemove, CurrentPlayingMedia);
+
+        if (removedCurrentlyPlaying)
+        {
+            _mediaPlayback.StopAndClear();
+            CurrentPlayingMedia = null;
+            StopImageAdvanceTimer();
+            SyncPlaybackState();
+            UpdateNowPlayingText("Now playing:");
+        }
+
+        PlayList.Remove(mediaToRemove);
         Debug.WriteLine($"Removed selected item: {removedTitle}");
         SelectedMedia = null;
     }
