@@ -117,8 +117,8 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,6,12,6" VerticalAlignment="Center" Text="Title"/>
-                        <TextBox Grid.Row="0" Grid.Column="1" Margin="0,6" MinHeight="28"
-                                 Style="{StaticResource FormTextBoxStyle}" Text="{Binding Title}"/>
+                        <TextBox x:Name="TitleTextBox" Grid.Row="0" Grid.Column="1" Margin="0,6" MinHeight="28"
+                                 Style="{StaticResource FormTextBoxStyle}"/>
 
                         <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,6,12,6" VerticalAlignment="Center" Text="File path"/>
                         <Grid Grid.Row="1" Grid.Column="1" Margin="0,6">
@@ -127,32 +127,41 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBox x:Name="FilePathTextBox" Grid.Column="0" MinHeight="28" Margin="0,0,8,0"
-                                     Style="{StaticResource FormTextBoxStyle}" Text="{Binding FilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                     Style="{StaticResource FormTextBoxStyle}"/>
                             <Button Grid.Column="1" Width="90" MinHeight="28" Content="Browse..."
                                     Style="{StaticResource FormButtonStyle}" Click="BrowseFile_OnClick"/>
                         </Grid>
 
-                        <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,6,12,6" VerticalAlignment="Center" Text="Image path"/>
-                        <TextBox Grid.Row="2" Grid.Column="1" Margin="0,6" MinHeight="28"
-                                 Style="{StaticResource FormTextBoxStyle}" Text="{Binding ImagePath}" IsReadOnly="True"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,6,12,6" VerticalAlignment="Center" 
+                                   Text="Image path"/>
+                        <TextBox x:Name="ImagePathTextBox" Grid.Row="2" Grid.Column="1" Margin="0,6" MinHeight="28"
+                                 Style="{StaticResource FormTextBoxStyle}"/>
 
-                        <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,6,12,6" VerticalAlignment="Center" Text="Duration (hh:mm:ss)"/>
-                        <TextBox Grid.Row="3" Grid.Column="1" Margin="0,6" MinHeight="28"
-                                 Style="{StaticResource FormTextBoxStyle}" Text="{Binding Duration, StringFormat={}{0:hh\\:mm\\:ss}}" IsReadOnly="True"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Margin="0,6,12,6" VerticalAlignment="Center" 
+                                   Text="Duration (hh:mm:ss)"/>
+                        <TextBox x:Name="DurationTextBox" Grid.Row="3" Grid.Column="1" Margin="0,6" MinHeight="28"
+                                 Style="{StaticResource FormTextBoxStyle}"/>
 
-                        <TextBlock Grid.Row="4" Grid.Column="0" Margin="0,6,12,6" VerticalAlignment="Center" Text="Artist"/>
-                        <TextBox Grid.Row="4" Grid.Column="1" Margin="0,6" MinHeight="28"
-                                 Style="{StaticResource FormTextBoxStyle}" Text="{Binding Artist}" IsReadOnly="True"/>
+                        <TextBlock Grid.Row="4" Grid.Column="0" Margin="0,6,12,6" VerticalAlignment="Center" 
+                                   Text="Artist"/>
+                        <TextBox x:Name="ArtistTextBox" Grid.Row="4" Grid.Column="1" Margin="0,6" MinHeight="28"
+                                 Style="{StaticResource FormTextBoxStyle}"/>
 
-                        <TextBlock Grid.Row="5" Grid.Column="0" Margin="0,6,12,6" VerticalAlignment="Center" Text="Album"/>
-                        <TextBox Grid.Row="5" Grid.Column="1" Margin="0,6" MinHeight="28"
-                                 Style="{StaticResource FormTextBoxStyle}" Text="{Binding Album}" IsReadOnly="True"/>
+                        <TextBlock Grid.Row="5" Grid.Column="0" Margin="0,6,12,6" VerticalAlignment="Center" 
+                                   Text="Album"/>
+                        <TextBox x:Name="AlbumTextBox" Grid.Row="5" Grid.Column="1" Margin="0,6" MinHeight="28"
+                                 Style="{StaticResource FormTextBoxStyle}"/>
 
-                        <TextBlock Grid.Row="6" Grid.Column="0" Margin="0,6,12,6" VerticalAlignment="Center" Text="Is playing"/>
-                        <CheckBox Grid.Row="6" Grid.Column="1" Margin="0,6" VerticalAlignment="Center" IsChecked="{Binding IsPlaying}" IsEnabled="False"/>
+                        <TextBlock Grid.Row="6" Grid.Column="0" Margin="0,6,12,6" VerticalAlignment="Center" 
+                                   Text="Is playing"/>
+                        <CheckBox x:Name="IsPlayingCheckBox" Grid.Row="6" Grid.Column="1" Margin="0,6" 
+                                  VerticalAlignment="Center"/>
 
-                        <StackPanel Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Width="90" Height="32" Content="Close" Click="Close_OnClick"
+                        <StackPanel Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" 
+                                    HorizontalAlignment="Right">
+                            <Button Width="90" Height="32" Margin="0,0,8,0" Content="Cancel" IsCancel="True"
+                                    Style="{StaticResource FormButtonStyle}" Click="Cancel_OnClick"/>
+                            <Button Width="90" Height="32" Content="Save" IsDefault="True" Click="Save_OnClick"
                                     Style="{StaticResource FormButtonStyle}"/>
                         </StackPanel>
                     </Grid>
