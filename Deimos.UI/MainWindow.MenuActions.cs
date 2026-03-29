@@ -49,29 +49,37 @@ public partial class MainWindow
             Debug.WriteLine($"Detected: {menuItem.Header}");
 
         if (_viewModel.SelectedMedia is null)
-        {
-            MessageBox.Show(this, "Select a media item first.", "No selection", 
-                MessageBoxButton.OK, MessageBoxImage.Information);
             return;
+
+        if (_editWindow is not null)
+        {
+            if (_editWindow.IsVisible)
+            {
+                _editWindow.UpdateMedia(_viewModel.SelectedMedia);
+                if (_editWindow.WindowState == WindowState.Minimized)
+                    _editWindow.WindowState = WindowState.Normal;
+                _editWindow.Topmost = true;
+                _editWindow.Activate();
+                _editWindow.Focus();
+                return;
+            }
+
+            _editWindow = null;
         }
 
-        if (_editWindow is null || !_editWindow.IsVisible)
+        if (_editWindow is null)
         {
             _editWindow = new EditMediaWindow(_viewModel.SelectedMedia)
             {
                 Owner = null,
                 WindowStartupLocation = WindowStartupLocation.CenterScreen,
                 ShowInTaskbar = true,
-                Topmost = false
+                Topmost = true
             };
 
             _editWindow.Closed += (_, _) => _editWindow = null;
             _editWindow.Show();
-            return;
         }
-
-        _editWindow.UpdateMedia(_viewModel.SelectedMedia);
-        _editWindow.Activate();
     }
 
     private void ViewModel_OnPropertyChangedForEditWindow(object? sender, PropertyChangedEventArgs e)
