@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using System.Windows;
+
 using Microsoft.Win32;
 
 using Deimos.UI.Models;
@@ -9,7 +9,7 @@ using Deimos.UI.Models;
 
 namespace Deimos.UI.Windowing;
 
-public partial class AddMediaWindow : Window
+public partial class AddMediaWindow
 {
     private const string DefaultCoverPath = "pack://application:,,,/Assets/Default_cover/Default.png";
     private readonly ObservableCollection<MediaFile> _playList;
@@ -37,7 +37,7 @@ public partial class AddMediaWindow : Window
         var audio = string.Join(";", MediaExtensions.AudioExtensions.Select(ext => $"*{ext}"));
         var video = string.Join(";", MediaExtensions.VideoExtensions.Select(ext => $"*{ext}"));
         var images = string.Join(";", MediaExtensions.ImageExtensions.Select(ext => $"*{ext}"));
-        var all = string.Join(";", new[] { audio, video, images });
+        var all = string.Join(";", audio, video, images);
 
         return $"All supported media|{all}|Audio files|{audio}|Video files|{video}|Image files|{images}|All files|*.*";
     }
@@ -46,7 +46,8 @@ public partial class AddMediaWindow : Window
     {
         if (!TryBuildMediaFile(out var mediaFile, out var errorMessage))
         {
-            MessageBox.Show(this, errorMessage, "Invalid input", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(this, errorMessage, "Invalid input", MessageBoxButton.OK, 
+                MessageBoxImage.Warning);
             return;
         }
 
