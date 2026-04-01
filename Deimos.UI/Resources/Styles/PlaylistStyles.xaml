@@ -37,11 +37,6 @@
                          Value="True">
                 <Setter Property="Foreground" Value="#F2F6FB"/>
             </DataTrigger>
-            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem},
-            Path=IsSelected}"
-                         Value="True">
-                <Setter Property="Foreground" Value="#F2F6FB"/>
-            </DataTrigger>
         </Style.Triggers>
     </Style>
 
