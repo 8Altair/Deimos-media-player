@@ -7,7 +7,7 @@ namespace Deimos.UI.Models;
 public class MediaFile: INotifyPropertyChanged
 {
     private string? _title; // Track title text
-    private string? _filePath;  // Absolute path to media file
+    private string? _filePath;  // Relative path to media file
     private string? _imagePath; // Cover art or image path
     private TimeSpan _duration; // Media duration
     private string? _artist;    // Artist metadata
