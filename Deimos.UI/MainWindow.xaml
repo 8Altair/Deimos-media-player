@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Title="Deimos"
         WindowState="Maximized"
-        MinWidth="620"
+        MinWidth="860"
         MinHeight="500"
         Background="{StaticResource WindowBackgroundBrush}"
         Foreground="{StaticResource PrimaryTextBrush}"
