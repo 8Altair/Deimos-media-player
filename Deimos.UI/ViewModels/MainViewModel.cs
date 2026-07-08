@@ -13,7 +13,7 @@ namespace Deimos.UI.ViewModels;
 
 public sealed class MainViewModel : INotifyPropertyChanged
 {
-    private const string StaticImageUri = "pack://application:,,,/Assets/Default_cover/Default.png"; // Default image resource
+    private const string DefaultCoverResourcePath = "pack://application:,,,/Assets/Default_cover/Default.png"; // Default image resource
     private const double ShuffleImageDurationSeconds = 5; // Shuffle image display length
     private readonly MediaPlayback _mediaPlayback; // Playback service instance
     private readonly Random _random = new(); // Shuffle source
@@ -71,7 +71,6 @@ public sealed class MainViewModel : INotifyPropertyChanged
         };
         _shuffleImageTimer.Tick += ShuffleImageTimer_OnTick;
         _mediaPlayback.SetVolume(_volume);
-        _mediaPlayback.LoadDefaultMediaFiles();
     }
     
     public ObservableCollection<MediaFile> PlayList { get; } // Items shown in the playlist
@@ -230,6 +229,21 @@ public sealed class MainViewModel : INotifyPropertyChanged
         }
     }
     
+    /// <summary>
+    /// Loads media files from the specified directory path.
+    /// </summary>
+    public void LoadMediaFilesFromDirectory(string directoryPath)
+    {
+        if (!Directory.Exists(directoryPath))
+        {
+            Debug.WriteLine($"Directory not found: {directoryPath}");
+            return;
+        }
+
+        _mediaPlayback.LoadMediaFilesFromPath(directoryPath);
+        Debug.WriteLine($"Media files loaded from: {directoryPath}");
+    }
+
     /// <summary>
     /// Receives playback updates and pushes them into the bound text property.
     /// </summary>
@@ -653,23 +667,23 @@ public sealed class MainViewModel : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// Adds a predefined static media item to the playlist.
+    /// Adds a predefined media item to the playlist using an embedded resource.
     /// </summary>
     private void AddStaticItem()
     {
         var staticItem = new MediaFile
         {
-            Title = "Default image",
-            FilePath = StaticImageUri,
-            ImagePath = StaticImageUri,
+            Title = "Sample Media",
+            FilePath = DefaultCoverResourcePath,
+            ImagePath = DefaultCoverResourcePath,
             Duration = TimeSpan.Zero,
-            Artist = "Image file",
-            Album = "Images",
+            Artist = null,
+            Album = null,
             IsPlaying = false
         };
 
         PlayList.Add(staticItem);
-        Debug.WriteLine($"Default image added: {staticItem.Title}");
+        Debug.WriteLine($"Sample media added: {staticItem.Title}");
     }
     
     /// <summary>
@@ -702,7 +716,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// Updates the selected media item title to a predefined static value.
+    /// Updates the selected media item with a user-provided title.
     /// </summary>
     private void EditStaticItem()
     {
@@ -712,8 +726,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
             return;
         }
 
-        SelectedMedia.Title = "Edited static title";
-        Debug.WriteLine($"Static title applied: {SelectedMedia.Title}");
+        SelectedMedia.Title = "Custom Title";
+        Debug.WriteLine($"Custom title applied: {SelectedMedia.Title}");
     }
 
     /// <summary>
