@@ -34,6 +34,8 @@
       <Resource Include="Assets\Icons\Deimos_logo.png" />
       <None Remove="Assets\Default_cover\Default.png" />
       <Resource Include="Assets\Default_cover\Default.png" />
+      <None Remove="Assets\Cursor\xiphos.cur" />
+      <None Remove="Assets\Cursor\cursor.cur" />
     </ItemGroup>
 
     <ItemGroup>
