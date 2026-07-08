@@ -11,7 +11,6 @@ namespace Deimos.UI.Services;
 
 public sealed class MediaPlayback
 {
-    private static readonly string MediaFolder = Path.Combine(AppContext.BaseDirectory, "Media");
     private const string FallbackAudioImage = "pack://application:,,,/Assets/Default_cover/Default.png"; // Default audio art
     private const string FallbackVideoImage = "pack://application:,,,/Assets/Default_cover/Default.png"; // Default video art
 
@@ -24,7 +23,7 @@ public sealed class MediaPlayback
     public bool IsPlaying => _isPlaying; // Exposes playback state for UI logic
 
     /// <summary>
-    /// Initializes playback service with playlist data and target UI controls.
+    /// Initializes the playback service with playlist data and target UI controls.
     /// </summary>
     public MediaPlayback(ObservableCollection<MediaFile> playList, MediaElement player, 
         Action<string> updateNowPlaying)
@@ -36,23 +35,23 @@ public sealed class MediaPlayback
     }
 
     /// <summary>
-    /// Scans the default media folder and fills the playlist with metadata.
+    /// Scans the specified media folder and fills the playlist with metadata.
     /// </summary>
-    public void LoadDefaultMediaFiles()
+    public void LoadMediaFilesFromPath(string mediaFolderPath)
     {
-        Debug.WriteLine("LoadDefaultMediaFiles started");
-        if (!Directory.Exists(MediaFolder))
+        Debug.WriteLine("LoadMediaFilesFromPath started");
+        if (!Directory.Exists(mediaFolderPath))
         {
-            Debug.WriteLine($"Media folder not found: {MediaFolder}");
+            Debug.WriteLine($"Media folder not found: {mediaFolderPath}");
             return;
         }
 
         // Cache folder for extracted cover art
         var artworkCacheFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ArtworkCache"); // Cache location
         Directory.CreateDirectory(artworkCacheFolder);
-        Debug.WriteLine($"Loading default media from: {MediaFolder}");
+        Debug.WriteLine($"Loading media from: {mediaFolderPath}");
 
-        foreach (var filePath in Directory.GetFiles(MediaFolder))
+        foreach (var filePath in Directory.GetFiles(mediaFolderPath))
         {
             var extension = Path.GetExtension(filePath).ToLowerInvariant(); // Normalized extension
 
@@ -66,8 +65,8 @@ public sealed class MediaPlayback
                     FilePath = filePath,
                     ImagePath = filePath,
                     Duration = TimeSpan.Zero,
-                    Artist = "Image file",
-                    Album = "Images",
+                    Artist = null,
+                    Album = null,
                     IsPlaying = false
                 });
 
