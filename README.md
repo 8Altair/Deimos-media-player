@@ -279,3 +279,9 @@ The application provides comprehensive debug logging:
 ## License
 
 This project is licensed under the MIT License - allowing free use, modification, and distribution for both personal and commercial purposes.
+
+---
+
+## ⚠️ Disclaimer
+
+**Deimos Media Player is a WPF learning/portfolio project and is not an official commercial product.** This is a demonstration application built as a desktop development exercise. It is provided as-is for educational and personal use purposes. Users should test the application thoroughly before using it with important media files or in production environments.
