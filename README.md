@@ -6,6 +6,9 @@ A lightweight, feature-rich media player built with C# and WPF for playing audio
 
 Deimos Media Player is a modern desktop media player application that provides an intuitive interface for managing and playing multimedia files. It supports multiple audio and video formats with advanced features like shuffle and repeat modes, embedded artwork extraction, and a responsive user interface designed for seamless playback control and media management.
 
+<img width="1919" height="1019" alt="image" src="https://github.com/user-attachments/assets/9091d5fe-1238-4dff-a0a9-e4af5d0dff3a" />
+
+
 ## Features
 
 ### 🎵 Multi-Format Support
