@@ -230,8 +230,6 @@ The application provides comprehensive debug logging:
 - Artwork handling operations
 - Error conditions and recovery attempts
 
-Enable debugging in Visual Studio Output window to monitor application behavior.
-
 ## Performance Considerations
 
 ### Efficient Media Loading
@@ -281,7 +279,3 @@ Enable debugging in Visual Studio Output window to monitor application behavior.
 ## License
 
 This project is licensed under the MIT License - allowing free use, modification, and distribution for both personal and commercial purposes.
-
-## Support & Feedback
-
-For issues, feature requests, or contributions, please visit the repository on GitHub. Detailed logging is available in the Visual Studio Output window during debugging for troubleshooting purposes.
