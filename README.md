@@ -36,7 +36,6 @@ Deimos Media Player is a modern desktop media player application that provides a
 - Image preview with shuffle capability
 
 ### 📝 Playlist Management
-- Flexible playlist system with drag-and-drop support
 - Add sample media items for testing
 - Edit individual media properties
 - Remove unwanted items from playlist
@@ -47,11 +46,11 @@ Deimos Media Player is a modern desktop media player application that provides a
 ### Requirements
 - Windows OS (WPF application)
 - .NET Framework 4.7+ or .NET 6+
-- Visual Studio or compatible C# IDE for building
+- Rider or compatible C# IDE for building
 
 ### Building from Source
 
-1. Open the project in Visual Studio
+1. Open the project in IDE
 2. Restore NuGet packages
 3. Build the solution
 4. Run the Deimos.UI application
@@ -130,7 +129,7 @@ Deimos.UI/
 ### Architecture Pattern
 
 **MVVM (Model-View-ViewModel)**
-- Separation of concerns between UI and business logic
+- Separation of concerns between UI and logic
 - Data binding for reactive UI updates
 - Command pattern for user interactions
 
