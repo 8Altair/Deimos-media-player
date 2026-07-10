@@ -206,22 +206,6 @@ Comprehensive artwork handling:
 | **Video** | .mp4, .avi, .wmv |
 | **Images** | .png, .jpg, .jpeg |
 
-## Privacy & Security
-
-### Privacy First Design
-- **No Hardcoded Paths**: Application contains no embedded local file paths
-- **User Controlled**: All media directories specified by end user
-- **No Data Collection**: No telemetry or user tracking
-- **Generic & Portable**: Can be used on any system without modification
-- **No Embedded Media**: Application ships without personal media files
-
-### Security Considerations
-- File validation before playback
-- URI validation and sanitization
-- Exception handling for invalid media
-- Safe metadata extraction with error recovery
-- No network access by default
-
 ## Development Notes
 
 ### Dependencies
